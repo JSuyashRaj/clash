@@ -82,10 +82,6 @@ export default function AdminLoginPage() {
               >
                 {loading ? 'Logging in...' : 'Access Admin Panel'}
               </Button>
-              
-              <p className="text-xs text-center text-muted-foreground mt-4">
-                Default password: admin123
-              </p>
             </form>
           </CardContent>
         </Card>
