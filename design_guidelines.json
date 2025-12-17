@@ -1,0 +1,155 @@
+{
+  "identity": {
+    "name": "Clash of Shuttles",
+    "persona": "E1 - The Anti-AI Designer",
+    "archetype": "Electric & Neon (Sporty/Competitive)",
+    "tone": "High-Energy, Precision, Aggressive, Professional",
+    "file_extension_rule": "Use .jsx for components (Project is React JS, not TS)"
+  },
+  "typography": {
+    "font_family": {
+      "headings": "Unbounded, sans-serif",
+      "body": "Manrope, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "installation": "Import via Google Fonts in index.css: @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Manrope:wght@400;500;700&family=Unbounded:wght@400;700;900&display=swap');",
+    "usage_rules": {
+      "headings": "font-black tracking-tighter uppercase",
+      "subheadings": "font-bold tracking-tight text-muted-foreground",
+      "body": "font-medium leading-relaxed",
+      "numbers": "font-mono tracking-widest (for scores/timers)"
+    }
+  },
+  "colors": {
+    "palette": {
+      "background": "#09090b",
+      "foreground": "#fafafa",
+      "card": "#121214",
+      "card_foreground": "#fafafa",
+      "popover": "#09090b",
+      "popover_foreground": "#fafafa",
+      "primary": "#ccff00",
+      "primary_foreground": "#000000",
+      "secondary": "#27272a",
+      "secondary_foreground": "#fafafa",
+      "muted": "#27272a",
+      "muted_foreground": "#a1a1aa",
+      "accent": "#ccff00",
+      "accent_foreground": "#000000",
+      "destructive": "#ff453a",
+      "destructive_foreground": "#fafafa",
+      "border": "#27272a",
+      "input": "#27272a",
+      "ring": "#ccff00"
+    },
+    "gradients": {
+      "hero_glow": "radial-gradient(circle at 50% 50%, rgba(204, 255, 0, 0.15) 0%, rgba(9, 9, 11, 0) 70%)",
+      "card_hover": "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%)"
+    },
+    "rules": [
+      "NEVER use gradients for text.",
+      "Primary color (#ccff00) is for Actions and Active States ONLY.",
+      "Backgrounds must be solid #09090b or #121214. No transparent backgrounds for overlays."
+    ]
+  },
+  "layout_strategies": {
+    "public_pages": {
+      "grid_mode": "MODE A: THE TETRIS GRID",
+      "container_style": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+      "spacing": "gap-8 md:gap-12",
+      "visuals": "Asymmetrical bento grids, large typography, negative space."
+    },
+    "dashboard_pages": {
+      "grid_mode": "MODE B: THE CONTROL ROOM GRID",
+      "container_style": "w-full px-4 py-4",
+      "spacing": "gap-4",
+      "visuals": "Dense data, high contrast borders, clear hierarchy."
+    },
+    "mobile_bracket": {
+      "pattern": "Vertical Stacked Layout",
+      "interaction": "Swipe to reveal rounds, collapsible match cards."
+    }
+  },
+  "components": {
+    "path_prefix": "/app/frontend/src/components/ui",
+    "library": "shadcn/ui",
+    "customization_rules": {
+      "buttons": "rounded-none font-bold uppercase tracking-wider border-2 border-transparent hover:border-primary hover:bg-transparent hover:text-primary transition-all duration-300",
+      "cards": "rounded-xl border border-white/10 bg-card/50 backdrop-blur-sm hover:border-primary/50 transition-colors duration-300",
+      "inputs": "rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12",
+      "dialogs": "bg-[#09090b] border border-white/10 sm:rounded-2xl"
+    },
+    "required_modifications": [
+      "Override 'h-9' in TabsList to 'h-auto p-1'",
+      "Ensure all DialogOverlays have 'backdrop-blur-md bg-black/80'",
+      "Add 'data-testid' to ALL interactive elements"
+    ]
+  },
+  "visual_enhancers": {
+    "textures": "Add a subtle noise texture overlay to the body: opacity-5 pointer-events-none fixed inset-0 z-50 mix-blend-overlay",
+    "borders": "Use 'tracing beam' effect for active cards (animated border gradient)",
+    "shadows": "Glow effects: shadow-[0_0_20px_-5px_rgba(204,255,0,0.3)] for primary actions"
+  },
+  "motion": {
+    "library": "framer-motion",
+    "transitions": {
+      "page_load": "initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: 'easeOut' }}",
+      "hover_lift": "whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 300 }}",
+      "list_stagger": "variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } }}"
+    },
+    "accessibility": "Respect prefers-reduced-motion. Wrap animations in MotionConfig."
+  },
+  "image_assets": {
+    "hero_backgrounds": [
+      {
+        "url": "https://images.unsplash.com/photo-1761286753703-570ed91dd90e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzR8MHwxfHNlYXJjaHwyfHxiYWRtaW50b24lMjBwbGF5ZXIlMjBzbWFzaCUyMGFjdGlvbiUyMGRhcmslMjBkcmFtYXRpYyUyMGxpZ2h0aW5nfGVufDB8fHx8MTc2NTk2NjQ0NHww&ixlib=rb-4.1.0&q=85",
+        "alt": "Badminton player smash action dark dramatic lighting",
+        "category": "hero",
+        "usage": "Landing page hero section background with overlay"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1658955515490-598dc8200283?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzR8MHwxfHNlYXJjaHwxfHxiYWRtaW50b24lMjBwbGF5ZXIlMjBzbWFzaCUyMGFjdGlvbiUyMGRhcmslMjBkcmFtYXRpYyUyMGxpZ2h0aW5nfGVufDB8fHx8MTc2NTk2NjQ0NHww&ixlib=rb-4.1.0&q=85",
+        "alt": "Badminton racket and shuttlecock",
+        "category": "hero",
+        "usage": "Secondary hero or section background"
+      }
+    ],
+    "placeholders": [
+      {
+        "url": "https://images.unsplash.com/photo-1709873582570-4f17d43921d4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2MzR8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBzcG9ydHMlMjB0ZWFtJTIwbG9nbyUyMHNoaWVsZCUyMGVtYmxlbSUyMHZlY3RvcnxlbnwwfHx8fDE3NjU5NjY0NDh8MA&ixlib=rb-4.1.0&q=85",
+        "alt": "Team Logo Placeholder 1",
+        "category": "logo",
+        "usage": "Default team logo"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1539687221520-1ead9fbca055?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2MzR8MHwxfHNlYXJjaHwzfHxtb2Rlcm4lMjBzcG9ydHMlMjB0ZWFtJTIwbG9nbyUyMHNoaWVsZCUyMGVtYmxlbSUyMHZlY3RvcnxlbnwwfHx8fDE3NjU5NjY0NDh8MA&ixlib=rb-4.1.0&q=85",
+        "alt": "Team Logo Placeholder 2",
+        "category": "logo",
+        "usage": "Default team logo"
+      }
+    ],
+    "decorative": [
+      {
+        "url": "https://images.unsplash.com/photo-1642999754574-e8c4709f4169?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwyfHxzaHV0dGxlY29jayUyMGFydGlzdGljJTIwY2xvc2UlMjB1cCUyMG5lb24lMjBsaWdodGluZ3xlbnwwfHx8fDE3NjU5NjY0NDV8MA&ixlib=rb-4.1.0&q=85",
+        "alt": "Artistic shuttlecock neon",
+        "category": "card_bg",
+        "usage": "Background for 'Match of the Day' card"
+      }
+    ]
+  },
+  "universal_guidelines": {
+    "testing": "All interactive elements MUST have a 'data-testid' attribute (kebab-case).",
+    "accessibility": "Ensure 4.5:1 contrast ratio. Use 'sr-only' for icon-only buttons.",
+    "code_style": "Use functional components with named exports for components, default exports for pages.",
+    "state_management": "Use React Context or Zustand for global tournament state (live scores).",
+    "error_handling": "Use Sonner toasts for all user feedback (success/error)."
+  },
+  "instructions_to_main_agent": [
+    "1. Install dependencies: framer-motion, lucide-react, sonner, clsx, tailwind-merge.",
+    "2. Update tailwind.config.js with the new color palette and font families.",
+    "3. Create a 'Layout' component that handles the Navbar (Public vs Admin) and Footer.",
+    "4. Build the 'Bracket' component using CSS Grid/Flexbox (do not use a library unless necessary).",
+    "5. Ensure the 'Live Score' view is the most prominent feature on the mobile homepage.",
+    "6. Use the provided image URLs for all placeholder and hero images."
+  ]
+}
