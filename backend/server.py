@@ -106,6 +106,7 @@ class MatchScoreUpdate(BaseModel):
 
 class AdminLogin(BaseModel):
     password: str
+    role: str = "main"
 
 class Notification(BaseModel):
     model_config = ConfigDict(extra="ignore")
