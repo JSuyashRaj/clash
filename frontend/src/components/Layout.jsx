@@ -8,6 +8,16 @@ export const Layout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const isAdmin = location.pathname.startsWith('/admin');
+  const adminRole = localStorage.getItem('adminRole') || 'main';
+  
+  const getRoleColor = () => {
+    const colors = {
+      main: 'primary',
+      umpire: 'cyan-500',
+      team: 'orange-500'
+    };
+    return colors[adminRole] || 'primary';
+  };
   
   const publicLinks = [
     { to: '/', label: 'Home', icon: Trophy },
@@ -16,11 +26,16 @@ export const Layout = () => {
     { to: '/leaderboard', label: 'Leaderboard', icon: Award },
   ];
   
-  const adminLinks = [
-    { to: '/admin/dashboard', label: 'Dashboard', icon: Trophy },
-    { to: '/admin/teams', label: 'Teams', icon: Users },
-    { to: '/admin/matches', label: 'Matches', icon: Calendar },
-  ];
+  const getAdminLinks = () => {
+    const allLinks = [
+      { to: '/admin/dashboard', label: 'Dashboard', icon: Trophy, roles: ['main', 'umpire', 'team'] },
+      { to: '/admin/teams', label: 'Teams', icon: Users, roles: ['main'] },
+      { to: '/admin/matches', label: 'Matches', icon: Calendar, roles: ['main', 'umpire'] },
+    ];
+    return allLinks.filter(link => link.roles.includes(adminRole));
+  };
+  
+  const adminLinks = getAdminLinks();
   
   const links = isAdmin ? adminLinks : publicLinks;
   
