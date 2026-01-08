@@ -123,8 +123,11 @@ class NotificationCreate(BaseModel):
 
 @api_router.post("/admin/login")
 async def admin_login(data: AdminLogin):
-    if bcrypt.checkpw(data.password.encode('utf-8'), ADMIN_PASSWORD_HASH.encode('utf-8')):
-        return {"success": True, "message": "Login successful"}
+    if data.role not in ADMIN_CREDENTIALS:
+        raise HTTPException(status_code=400, detail="Invalid role")
+    
+    if bcrypt.checkpw(data.password.encode('utf-8'), ADMIN_CREDENTIALS[data.role].encode('utf-8')):
+        return {"success": True, "role": data.role, "message": "Login successful"}
     raise HTTPException(status_code=401, detail="Invalid password")
 
 @api_router.post("/teams", response_model=Team)
