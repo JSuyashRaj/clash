@@ -217,12 +217,10 @@ async def delete_player(player_id: str):
 
 @api_router.post("/matches", response_model=Match)
 async def create_match(match: MatchCreate):
+    num_matches = 1 if match.stage == "league" else 5
     default_scores = [
-        MatchScore(match_number=1, match_type="doubles", points_awarded=3),
-        MatchScore(match_number=2, match_type="doubles", points_awarded=4),
-        MatchScore(match_number=3, match_type="doubles", points_awarded=5),
-        MatchScore(match_number=4, match_type="doubles", points_awarded=3),
-        MatchScore(match_number=5, match_type="doubles", points_awarded=6),
+        MatchScore(match_number=i+1, match_type="doubles")
+        for i in range(num_matches)
     ]
     match_data = match.model_dump()
     match_data["scores"] = [s.model_dump() for s in default_scores]
