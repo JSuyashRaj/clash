@@ -268,13 +268,16 @@ async def update_match_score(match_id: str, score_update: MatchScoreUpdate):
         match = await db.matches.find_one({"id": match_id}, {"_id": 0})
         loser_id = match["team1_id"] if score_update.winner_id == match["team2_id"] else match["team2_id"]
         
+        points_to_add = 2 if score_update.winner_id == match["team1_id"] else 0
+        loser_points = 0 if score_update.winner_id == match["team1_id"] else 2
+        
         await db.teams.update_one(
             {"id": score_update.winner_id},
-            {"$inc": {"matches_won": 1, "matches_played": 1, "points": score_update.team1_total_points if score_update.winner_id == match["team1_id"] else score_update.team2_total_points}}
+            {"$inc": {"matches_won": 1, "matches_played": 1, "points": points_to_add if points_to_add > 0 else 2}}
         )
         await db.teams.update_one(
             {"id": loser_id},
-            {"$inc": {"matches_lost": 1, "matches_played": 1, "points": score_update.team2_total_points if loser_id == match["team2_id"] else score_update.team1_total_points}}
+            {"$inc": {"matches_lost": 1, "matches_played": 1, "points": loser_points}}
         )
     
     return {"success": True}
