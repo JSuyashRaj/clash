@@ -71,7 +71,6 @@ class MatchScore(BaseModel):
     team2_set3: int = 0
     handicap_applied: bool = False
     winner: Optional[str] = None
-    points_awarded: int
 
 class Match(BaseModel):
     model_config = ConfigDict(extra="ignore")
