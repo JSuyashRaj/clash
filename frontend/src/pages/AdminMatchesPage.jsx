@@ -18,6 +18,7 @@ export default function AdminMatchesPage() {
   const navigate = useNavigate();
   const [matches, setMatches] = useState([]);
   const [teams, setTeams] = useState([]);
+  const [adminRole, setAdminRole] = useState('main');
   const [showMatchDialog, setShowMatchDialog] = useState(false);
   const [showScoreDialog, setShowScoreDialog] = useState(false);
   const [showPhotoDialog, setShowPhotoDialog] = useState(false);
@@ -37,6 +38,12 @@ export default function AdminMatchesPage() {
   useEffect(() => {
     if (!localStorage.getItem('adminAuth')) {
       navigate('/admin/login');
+      return;
+    }
+    const role = localStorage.getItem('adminRole') || 'main';
+    setAdminRole(role);
+    if (role !== 'main' && role !== 'umpire') {
+      navigate('/admin/dashboard');
       return;
     }
     fetchData();
@@ -99,22 +106,27 @@ export default function AdminMatchesPage() {
     let team2Total = 0;
     
     scoreForm.scores.forEach(score => {
-      const team1Sets = [score.team1_set1, score.team1_set2, score.team1_set3].filter(s => s > 0);
-      const team2Sets = [score.team2_set1, score.team2_set2, score.team2_set3].filter(s => s > 0);
-      
       let team1Wins = 0;
       let team2Wins = 0;
       
-      for (let i = 0; i < Math.max(team1Sets.length, team2Sets.length); i++) {
-        if (team1Sets[i] > team2Sets[i]) team1Wins++;
-        else if (team2Sets[i] > team1Sets[i]) team2Wins++;
+      if (score.team1_set1 > score.team2_set1) team1Wins++;
+      else if (score.team2_set1 > score.team1_set1) team2Wins++;
+      
+      if (score.team1_set2 > 0 && score.team2_set2 > 0) {
+        if (score.team1_set2 > score.team2_set2) team1Wins++;
+        else if (score.team2_set2 > score.team1_set2) team2Wins++;
+      }
+      
+      if (score.team1_set3 > 0 && score.team2_set3 > 0) {
+        if (score.team1_set3 > score.team2_set3) team1Wins++;
+        else if (score.team2_set3 > score.team1_set3) team2Wins++;
       }
       
       if (team1Wins > team2Wins) {
-        team1Total += score.points_awarded;
+        team1Total += 1;
         score.winner = 'team1';
       } else if (team2Wins > team1Wins) {
-        team2Total += score.points_awarded;
+        team2Total += 1;
         score.winner = 'team2';
       }
     });
@@ -185,6 +197,14 @@ export default function AdminMatchesPage() {
     setScoreForm({ ...scoreForm, scores: updated });
   };
   
+  const isKnockout = (stage) => {
+    return ['knockout', 'semifinal', 'final'].includes(stage);
+  };
+  
+  const getStageColor = (stage) => {
+    return isKnockout(stage) ? 'border-red-500/50 hover:border-red-500' : 'border-white/10 hover:border-primary/50';
+  };
+  
   return (
     <div className="bg-background min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -196,139 +216,143 @@ export default function AdminMatchesPage() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="font-heading font-black text-4xl sm:text-5xl tracking-tighter uppercase text-foreground mb-2">
-                Manage <span className="text-primary">Matches</span>
+                Manage <span className={adminRole === 'umpire' ? 'text-cyan-500' : 'text-primary'}>Matches</span>
               </h1>
               <p className="text-lg text-muted-foreground font-medium">
-                Create and update match scores
+                {adminRole === 'umpire' ? 'Update match scores' : 'Create and update match scores'}
               </p>
             </div>
             <div className="flex gap-2">
-              <Dialog open={showNotifDialog} onOpenChange={setShowNotifDialog}>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="font-bold uppercase tracking-wider border-2"
-                    data-testid="send-notif-btn"
-                  >
-                    <Bell className="mr-2 h-4 w-4" /> Notify
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="bg-card border border-white/10 sm:rounded-2xl">
-                  <DialogHeader>
-                    <DialogTitle className="font-heading font-bold text-2xl tracking-tight uppercase">
-                      Send Notification
-                    </DialogTitle>
-                  </DialogHeader>
-                  <form onSubmit={handleSendNotification} className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Title</label>
-                      <Input
-                        value={notifForm.title}
-                        onChange={(e) => setNotifForm({ ...notifForm, title: e.target.value })}
-                        required
-                        className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
-                        data-testid="notif-title-input"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Message</label>
-                      <Textarea
-                        value={notifForm.message}
-                        onChange={(e) => setNotifForm({ ...notifForm, message: e.target.value })}
-                        required
-                        className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0"
-                        data-testid="notif-message-input"
-                      />
-                    </div>
-                    <Button type="submit" className="w-full font-bold uppercase tracking-wider glow-primary" data-testid="notif-submit-btn">
-                      Send Notification
-                    </Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
-              
-              <Dialog open={showMatchDialog} onOpenChange={setShowMatchDialog}>
-                <DialogTrigger asChild>
-                  <Button className="font-bold uppercase tracking-wider glow-primary" data-testid="add-match-btn">
-                    <Plus className="mr-2 h-4 w-4" /> Add Match
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="bg-card border border-white/10 sm:rounded-2xl">
-                  <DialogHeader>
-                    <DialogTitle className="font-heading font-bold text-2xl tracking-tight uppercase">
-                      Create New Match
-                    </DialogTitle>
-                  </DialogHeader>
-                  <form onSubmit={handleCreateMatch} className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Clash Name</label>
-                      <Input
-                        value={matchForm.clash_name}
-                        onChange={(e) => setMatchForm({ ...matchForm, clash_name: e.target.value })}
-                        placeholder="e.g., Block A vs Block B"
-                        required
-                        className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
-                        data-testid="match-name-input"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Team 1</label>
-                        <Select value={matchForm.team1_id} onValueChange={(val) => setMatchForm({ ...matchForm, team1_id: val })}>
-                          <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12" data-testid="team1-select">
-                            <SelectValue placeholder="Select Team 1" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-card border border-white/10">
-                            {teams.map(team => (
-                              <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Team 2</label>
-                        <Select value={matchForm.team2_id} onValueChange={(val) => setMatchForm({ ...matchForm, team2_id: val })}>
-                          <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12" data-testid="team2-select">
-                            <SelectValue placeholder="Select Team 2" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-card border border-white/10">
-                            {teams.map(team => (
-                              <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Stage</label>
-                      <Select value={matchForm.stage} onValueChange={(val) => setMatchForm({ ...matchForm, stage: val })}>
-                        <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12" data-testid="stage-select">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-card border border-white/10">
-                          <SelectItem value="league">League Stage</SelectItem>
-                          <SelectItem value="knockout">Knockout Stage</SelectItem>
-                          <SelectItem value="semifinal">Semifinal</SelectItem>
-                          <SelectItem value="final">Final</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Scheduled Time (Optional)</label>
-                      <Input
-                        type="datetime-local"
-                        value={matchForm.scheduled_time}
-                        onChange={(e) => setMatchForm({ ...matchForm, scheduled_time: e.target.value })}
-                        className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
-                        data-testid="scheduled-time-input"
-                      />
-                    </div>
-                    <Button type="submit" className="w-full font-bold uppercase tracking-wider glow-primary" data-testid="match-submit-btn">
-                      Create Match
-                    </Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
+              {adminRole === 'main' && (
+                <>
+                  <Dialog open={showNotifDialog} onOpenChange={setShowNotifDialog}>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="font-bold uppercase tracking-wider border-2"
+                        data-testid="send-notif-btn"
+                      >
+                        <Bell className="mr-2 h-4 w-4" /> Notify
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-card border border-white/10 sm:rounded-2xl">
+                      <DialogHeader>
+                        <DialogTitle className="font-heading font-bold text-2xl tracking-tight uppercase">
+                          Send Notification
+                        </DialogTitle>
+                      </DialogHeader>
+                      <form onSubmit={handleSendNotification} className="space-y-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Title</label>
+                          <Input
+                            value={notifForm.title}
+                            onChange={(e) => setNotifForm({ ...notifForm, title: e.target.value })}
+                            required
+                            className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
+                            data-testid="notif-title-input"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Message</label>
+                          <Textarea
+                            value={notifForm.message}
+                            onChange={(e) => setNotifForm({ ...notifForm, message: e.target.value })}
+                            required
+                            className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0"
+                            data-testid="notif-message-input"
+                          />
+                        </div>
+                        <Button type="submit" className="w-full font-bold uppercase tracking-wider glow-primary" data-testid="notif-submit-btn">
+                          Send Notification
+                        </Button>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
+                  
+                  <Dialog open={showMatchDialog} onOpenChange={setShowMatchDialog}>
+                    <DialogTrigger asChild>
+                      <Button className="font-bold uppercase tracking-wider glow-primary" data-testid="add-match-btn">
+                        <Plus className="mr-2 h-4 w-4" /> Add Match
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-card border border-white/10 sm:rounded-2xl">
+                      <DialogHeader>
+                        <DialogTitle className="font-heading font-bold text-2xl tracking-tight uppercase">
+                          Create New Match
+                        </DialogTitle>
+                      </DialogHeader>
+                      <form onSubmit={handleCreateMatch} className="space-y-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Clash Name</label>
+                          <Input
+                            value={matchForm.clash_name}
+                            onChange={(e) => setMatchForm({ ...matchForm, clash_name: e.target.value })}
+                            placeholder="e.g., Block A vs Block B"
+                            required
+                            className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
+                            data-testid="match-name-input"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Team 1</label>
+                            <Select value={matchForm.team1_id} onValueChange={(val) => setMatchForm({ ...matchForm, team1_id: val })}>
+                              <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12" data-testid="team1-select">
+                                <SelectValue placeholder="Select Team 1" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-card border border-white/10">
+                                {teams.map(team => (
+                                  <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Team 2</label>
+                            <Select value={matchForm.team2_id} onValueChange={(val) => setMatchForm({ ...matchForm, team2_id: val })}>
+                              <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12" data-testid="team2-select">
+                                <SelectValue placeholder="Select Team 2" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-card border border-white/10">
+                                {teams.map(team => (
+                                  <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Stage</label>
+                          <Select value={matchForm.stage} onValueChange={(val) => setMatchForm({ ...matchForm, stage: val })}>
+                            <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12" data-testid="stage-select">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-card border border-white/10">
+                              <SelectItem value="league">League Stage (1 Set)</SelectItem>
+                              <SelectItem value="knockout">Knockout Stage (Best of 3)</SelectItem>
+                              <SelectItem value="semifinal">Semifinal (Best of 3)</SelectItem>
+                              <SelectItem value="final">Final (Best of 3)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Scheduled Time (Optional)</label>
+                          <Input
+                            type="datetime-local"
+                            value={matchForm.scheduled_time}
+                            onChange={(e) => setMatchForm({ ...matchForm, scheduled_time: e.target.value })}
+                            className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
+                            data-testid="scheduled-time-input"
+                          />
+                        </div>
+                        <Button type="submit" className="w-full font-bold uppercase tracking-wider glow-primary" data-testid="match-submit-btn">
+                          Create Match
+                        </Button>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
+                </>
+              )}
             </div>
           </div>
         </motion.div>
@@ -342,14 +366,27 @@ export default function AdminMatchesPage() {
               transition={{ duration: 0.4, delay: idx * 0.05 }}
               data-testid={`admin-match-${match.id}`}
             >
-              <Card className="rounded-xl border border-white/10 bg-card/50 backdrop-blur-sm hover:border-primary/50 transition-all duration-300">
+              <Card className={`rounded-xl border backdrop-blur-sm transition-all duration-300 ${
+                isKnockout(match.stage)
+                  ? 'bg-gradient-to-br from-red-950/30 to-card/50 border-red-500/30 hover:border-red-500/50'
+                  : 'bg-card/50 border-white/10 hover:border-primary/50'
+              }`}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h3 className="font-heading font-bold text-xl tracking-tight uppercase text-foreground">
-                        {match.clash_name}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">{match.stage} - {match.status}</p>
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-heading font-bold text-xl tracking-tight uppercase text-foreground">
+                          {match.clash_name}
+                        </h3>
+                        {isKnockout(match.stage) && (
+                          <span className="px-2 py-1 bg-red-500/20 border border-red-500/50 rounded text-xs font-bold text-red-400 uppercase">
+                            Royal
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {match.stage === 'league' ? 'League Stage (1 Set)' : `${match.stage.toUpperCase()} (Best of 3)`} - {match.status}
+                      </p>
                     </div>
                     <div className="flex gap-2">
                       <Button
@@ -361,48 +398,52 @@ export default function AdminMatchesPage() {
                       >
                         <Edit className="h-4 w-4 mr-1" /> Score
                       </Button>
-                      <Dialog>
-                        <DialogTrigger asChild>
+                      {adminRole === 'main' && (
+                        <>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setEditingMatch(match)}
+                                className="border-2 font-bold uppercase text-xs"
+                                data-testid={`upload-photo-${match.id}`}
+                              >
+                                <Upload className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="bg-card border border-white/10 sm:rounded-2xl">
+                              <DialogHeader>
+                                <DialogTitle className="font-heading font-bold text-2xl tracking-tight uppercase">
+                                  Upload Match Photo
+                                </DialogTitle>
+                              </DialogHeader>
+                              <form onSubmit={handlePhotoUpload} className="space-y-4">
+                                <Input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => setPhotoFile(e.target.files[0])}
+                                  required
+                                  className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
+                                  data-testid="photo-input"
+                                />
+                                <Button type="submit" className="w-full font-bold uppercase tracking-wider glow-primary" data-testid="photo-submit-btn">
+                                  Upload Photo
+                                </Button>
+                              </form>
+                            </DialogContent>
+                          </Dialog>
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => setEditingMatch(match)}
-                            className="border-2 font-bold uppercase text-xs"
-                            data-testid={`upload-photo-${match.id}`}
+                            onClick={() => handleDeleteMatch(match.id)}
+                            className="border-2 border-destructive text-destructive hover:bg-destructive hover:text-white"
+                            data-testid={`delete-match-${match.id}`}
                           >
-                            <Upload className="h-4 w-4" />
+                            <Trash2 className="h-4 w-4" />
                           </Button>
-                        </DialogTrigger>
-                        <DialogContent className="bg-card border border-white/10 sm:rounded-2xl">
-                          <DialogHeader>
-                            <DialogTitle className="font-heading font-bold text-2xl tracking-tight uppercase">
-                              Upload Match Photo
-                            </DialogTitle>
-                          </DialogHeader>
-                          <form onSubmit={handlePhotoUpload} className="space-y-4">
-                            <Input
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => setPhotoFile(e.target.files[0])}
-                              required
-                              className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
-                              data-testid="photo-input"
-                            />
-                            <Button type="submit" className="w-full font-bold uppercase tracking-wider glow-primary" data-testid="photo-submit-btn">
-                              Upload Photo
-                            </Button>
-                          </form>
-                        </DialogContent>
-                      </Dialog>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDeleteMatch(match.id)}
-                        className="border-2 border-destructive text-destructive hover:bg-destructive hover:text-white"
-                        data-testid={`delete-match-${match.id}`}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                   
@@ -412,9 +453,13 @@ export default function AdminMatchesPage() {
                     </div>
                     <div className="text-center">
                       <div className="flex items-center gap-3">
-                        <span className="font-mono font-black text-3xl text-primary">{match.team1_total_points}</span>
+                        <span className={`font-mono font-black text-3xl ${
+                          isKnockout(match.stage) ? 'text-red-500' : 'text-primary'
+                        }`}>{match.team1_total_points}</span>
                         <span className="font-mono text-sm text-muted-foreground">-</span>
-                        <span className="font-mono font-black text-3xl text-primary">{match.team2_total_points}</span>
+                        <span className={`font-mono font-black text-3xl ${
+                          isKnockout(match.stage) ? 'text-red-500' : 'text-primary'
+                        }`}>{match.team2_total_points}</span>
                       </div>
                     </div>
                     <div className="text-right">
@@ -428,10 +473,17 @@ export default function AdminMatchesPage() {
         </div>
         
         <Dialog open={showScoreDialog} onOpenChange={setShowScoreDialog}>
-          <DialogContent className="bg-card border border-white/10 sm:rounded-2xl max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className={`border sm:rounded-2xl max-w-3xl max-h-[80vh] overflow-y-auto ${
+            editingMatch && isKnockout(editingMatch.stage)
+              ? 'bg-gradient-to-br from-red-950/50 to-card border-red-500/30'
+              : 'bg-card border-white/10'
+          }`}>
             <DialogHeader>
               <DialogTitle className="font-heading font-bold text-2xl tracking-tight uppercase">
                 Update Match Score
+                {editingMatch && isKnockout(editingMatch.stage) && (
+                  <span className="ml-3 px-3 py-1 bg-red-500/20 border border-red-500/50 rounded text-sm text-red-400">ROYAL</span>
+                )}
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleUpdateScore} className="space-y-6">
@@ -450,86 +502,103 @@ export default function AdminMatchesPage() {
               </div>
               
               {scoreForm.scores.map((score, idx) => (
-                <div key={idx} className="border border-border rounded-lg p-4 space-y-3">
+                <div key={idx} className={`border rounded-lg p-4 space-y-3 ${
+                  editingMatch && isKnockout(editingMatch.stage)
+                    ? 'border-red-500/30 bg-red-950/20'
+                    : 'border-border'
+                }`}>
                   <div className="flex items-center justify-between">
-                    <span className="font-mono font-bold text-sm bg-primary text-primary-foreground px-3 py-1 rounded">
-                      Match {score.match_number} ({score.points_awarded} pts)
+                    <span className={`font-mono font-bold text-sm px-3 py-1 rounded ${
+                      editingMatch && isKnockout(editingMatch.stage)
+                        ? 'bg-red-500 text-black'
+                        : 'bg-primary text-primary-foreground'
+                    }`}>
+                      {editingMatch && editingMatch.stage === 'league' ? 'Match' : `Match ${score.match_number}`}
                     </span>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-xs text-muted-foreground">{editingMatch && getTeamName(editingMatch.team1_id)}</label>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="flex gap-2">
                         <Input
                           type="number"
                           min="0"
-                          max="21"
+                          max="25"
                           value={score.team1_set1}
                           onChange={(e) => updateScoreField(idx, 'team1_set1', e.target.value)}
                           placeholder="Set 1"
                           className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-10 text-center"
                           data-testid={`team1-set1-${idx}`}
                         />
-                        <Input
-                          type="number"
-                          min="0"
-                          max="21"
-                          value={score.team1_set2}
-                          onChange={(e) => updateScoreField(idx, 'team1_set2', e.target.value)}
-                          placeholder="Set 2"
-                          className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-10 text-center"
-                          data-testid={`team1-set2-${idx}`}
-                        />
-                        <Input
-                          type="number"
-                          min="0"
-                          max="21"
-                          value={score.team1_set3}
-                          onChange={(e) => updateScoreField(idx, 'team1_set3', e.target.value)}
-                          placeholder="Set 3"
-                          className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-10 text-center"
-                          data-testid={`team1-set3-${idx}`}
-                        />
+                        {editingMatch && isKnockout(editingMatch.stage) && (
+                          <>
+                            <Input
+                              type="number"
+                              min="0"
+                              max="25"
+                              value={score.team1_set2}
+                              onChange={(e) => updateScoreField(idx, 'team1_set2', e.target.value)}
+                              placeholder="Set 2"
+                              className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-10 text-center"
+                              data-testid={`team1-set2-${idx}`}
+                            />
+                            <Input
+                              type="number"
+                              min="0"
+                              max="25"
+                              value={score.team1_set3}
+                              onChange={(e) => updateScoreField(idx, 'team1_set3', e.target.value)}
+                              placeholder="Set 3"
+                              className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-10 text-center"
+                              data-testid={`team1-set3-${idx}`}
+                            />
+                          </>
+                        )}
                       </div>
                     </div>
                     
                     <div className="space-y-2">
                       <label className="text-xs text-muted-foreground">{editingMatch && getTeamName(editingMatch.team2_id)}</label>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="flex gap-2">
                         <Input
                           type="number"
                           min="0"
-                          max="21"
+                          max="25"
                           value={score.team2_set1}
                           onChange={(e) => updateScoreField(idx, 'team2_set1', e.target.value)}
                           placeholder="Set 1"
                           className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-10 text-center"
                           data-testid={`team2-set1-${idx}`}
                         />
-                        <Input
-                          type="number"
-                          min="0"
-                          max="21"
-                          value={score.team2_set2}
-                          onChange={(e) => updateScoreField(idx, 'team2_set2', e.target.value)}
-                          placeholder="Set 2"
-                          className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-10 text-center"
-                          data-testid={`team2-set2-${idx}`}
-                        />
-                        <Input
-                          type="number"
-                          min="0"
-                          max="21"
-                          value={score.team2_set3}
-                          onChange={(e) => updateScoreField(idx, 'team2_set3', e.target.value)}
-                          placeholder="Set 3"
-                          className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-10 text-center"
-                          data-testid={`team2-set3-${idx}`}
-                        />
+                        {editingMatch && isKnockout(editingMatch.stage) && (
+                          <>
+                            <Input
+                              type="number"
+                              min="0"
+                              max="25"
+                              value={score.team2_set2}
+                              onChange={(e) => updateScoreField(idx, 'team2_set2', e.target.value)}
+                              placeholder="Set 2"
+                              className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-10 text-center"
+                              data-testid={`team2-set2-${idx}`}
+                            />
+                            <Input
+                              type="number"
+                              min="0"
+                              max="25"
+                              value={score.team2_set3}
+                              onChange={(e) => updateScoreField(idx, 'team2_set3', e.target.value)}
+                              placeholder="Set 3"
+                              className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-10 text-center"
+                              data-testid={`team2-set3-${idx}`}
+                            />
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
+                  <p className="text-xs text-muted-foreground">Score can go up to 25 in case of deuce (24-24)</p>
                 </div>
               ))}
               
