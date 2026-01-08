@@ -87,7 +87,7 @@ export default function AdminDashboard() {
           transition={{ duration: 0.4 }}
         >
           <h1 className="font-heading font-black text-4xl sm:text-5xl tracking-tighter uppercase text-foreground mb-2">
-            Admin <span className="text-primary">Dashboard</span>
+            <span className={getRoleColor()}>{getRoleName()}</span> Dashboard
           </h1>
           <p className="text-lg text-muted-foreground font-medium mb-8">
             Tournament management overview
