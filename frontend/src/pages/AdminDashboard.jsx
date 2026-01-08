@@ -51,6 +51,24 @@ export default function AdminDashboard() {
     }
   };
   
+  const getRoleColor = () => {
+    const colors = {
+      main: 'text-primary',
+      umpire: 'text-cyan-500',
+      team: 'text-orange-500'
+    };
+    return colors[adminRole] || 'text-primary';
+  };
+  
+  const getRoleName = () => {
+    const names = {
+      main: 'Main Admin',
+      umpire: 'Umpire Admin',
+      team: 'Team Admin'
+    };
+    return names[adminRole] || 'Admin';
+  };
+  
   const statCards = [
     { title: 'Total Teams', value: stats.totalTeams, icon: Users, color: 'text-primary' },
     { title: 'Total Players', value: stats.totalPlayers, icon: Users, color: 'text-blue-500' },
