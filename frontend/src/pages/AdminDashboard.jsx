@@ -10,6 +10,7 @@ const API = `${BACKEND_URL}/api`;
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const [adminRole, setAdminRole] = useState('main');
   const [stats, setStats] = useState({
     totalTeams: 0,
     totalPlayers: 0,
@@ -24,6 +25,8 @@ export default function AdminDashboard() {
       navigate('/admin/login');
       return;
     }
+    const role = localStorage.getItem('adminRole') || 'main';
+    setAdminRole(role);
     fetchStats();
   }, [navigate]);
   
