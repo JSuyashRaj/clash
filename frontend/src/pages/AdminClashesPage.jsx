@@ -23,11 +23,11 @@ export default function AdminClashesPage() {
   const [showScoreDialog, setShowScoreDialog] = useState(false);
   const [showNotifDialog, setShowNotifDialog] = useState(false);
   const [editingClash, setEditingClash] = useState(null);
-  const [clashForm, setClashForm] = useState({
+  const clashForm, setClashForm] = useState({
     clash_name: '',
     team1_id: '',
     team2_id: '',
-    stage: 'knockout',
+    stage: 'league',
     scheduled_time: ''
   });
   const [scoreForm, setScoreForm] = useState({ scores: [], status: 'upcoming', start_time: '', end_time: '' });
