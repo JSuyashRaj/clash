@@ -8,7 +8,7 @@ import base64
 import io
 
 class BadmintonTournamentAPITester:
-    def __init__(self, base_url="https://courtscorer.preview.emergentagent.com"):
+    def __init__(self, base_url="https://court-manager-13.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.tests_run = 0
