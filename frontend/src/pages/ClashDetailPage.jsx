@@ -82,10 +82,10 @@ export default function ClashDetailPage() {
     text: 'text-red-500',
     badge: 'bg-red-500'
   } : {
-    border: 'border-yellow-500/50',
+    border: 'border-primary/50',
     bg: 'bg-card/50',
-    text: 'text-yellow-500',
-    badge: 'bg-yellow-500'
+    text: 'text-primary',
+    badge: 'bg-primary'
   };
   
   return (
@@ -143,7 +143,7 @@ export default function ClashDetailPage() {
                   <div className="bg-secondary/50 rounded-xl p-6 mb-4">
                     <Trophy className={`h-12 w-12 mx-auto mb-2 ${theme.text}`} />
                     <div className="flex items-center gap-2 justify-center mb-2">
-                      <span className="px-2 py-1 bg-yellow-500 text-black font-mono font-bold text-xs rounded">
+                      <span className="px-2 py-1 bg-primary text-black font-mono font-bold text-xs rounded">
                         {teams.team1?.pool}{teams.team1?.pool_number}
                       </span>
                     </div>
@@ -163,7 +163,7 @@ export default function ClashDetailPage() {
                   <div className="bg-secondary/50 rounded-xl p-6 mb-4">
                     <Trophy className={`h-12 w-12 mx-auto mb-2 ${theme.text}`} />
                     <div className="flex items-center gap-2 justify-center mb-2">
-                      <span className="px-2 py-1 bg-yellow-500 text-black font-mono font-bold text-xs rounded">
+                      <span className="px-2 py-1 bg-primary text-black font-mono font-bold text-xs rounded">
                         {teams.team2?.pool}{teams.team2?.pool_number}
                       </span>
                     </div>
@@ -177,7 +177,7 @@ export default function ClashDetailPage() {
               </div>
               
               {clash.status === 'completed' && clash.winner_id && (
-                <div className={`text-center py-4 ${knockout ? 'bg-red-500/10 border-red-500/30' : 'bg-yellow-500/10 border-yellow-500/30'} rounded-lg border`}>
+                <div className={`text-center py-4 ${knockout ? 'bg-red-500/10 border-red-500/30' : 'bg-primary/10 border-primary/30'} rounded-lg border`}>
                   <p className={`font-heading font-bold text-xl tracking-tight uppercase ${theme.text}`}>
                     Winner: {clash.winner_id === clash.team1_id ? teams.team1?.name : teams.team2?.name}
                   </p>
@@ -193,7 +193,7 @@ export default function ClashDetailPage() {
             <CardContent>
               <div className="space-y-4">
                 {clash.scores.map((score, idx) => (
-                  <div key={idx} className={`border rounded-lg p-4 ${knockout ? 'border-red-500/30 bg-red-950/20' : 'border-yellow-500/30 bg-yellow-500/5'}`} data-testid={`match-score-${idx}`}>
+                  <div key={idx} className={`border rounded-lg p-4 ${knockout ? 'border-red-500/30 bg-red-950/20' : 'border-primary/30 bg-primary/5'}`} data-testid={`match-score-${idx}`}>
                     <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                       <div className="flex items-center gap-3">
                         <span className={`font-mono font-bold text-sm px-3 py-1 rounded ${theme.badge} text-black`}>

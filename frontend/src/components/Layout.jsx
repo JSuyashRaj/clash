@@ -39,7 +39,7 @@ export const Layout = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link to={isAdmin ? '/admin/dashboard' : '/'} className="flex items-center space-x-3 group" data-testid="logo-link">
-              <div className="bg-yellow-500 rounded-lg p-2 group-hover:shadow-[0_0_20px_-5px_rgba(234,179,8,0.5)] transition-all duration-300">
+              <div className="bg-primary rounded-lg p-2 group-hover:shadow-[0_0_20px_-5px_rgba(234,179,8,0.5)] transition-all duration-300">
                 <Trophy className="h-6 w-6 text-black" />
               </div>
               <span className="font-heading font-black text-xl tracking-tighter uppercase text-foreground">Clash of Shuttles</span>
@@ -54,7 +54,7 @@ export const Layout = () => {
                     <Button
                       variant={isActive ? 'default' : 'ghost'}
                       className={`font-bold uppercase tracking-wider ${
-                        isActive ? 'bg-yellow-500 text-black hover:bg-yellow-400' : 'text-muted-foreground hover:text-foreground'
+                        isActive ? 'bg-primary text-black hover:bg-yellow-400' : 'text-muted-foreground hover:text-foreground'
                       }`}
                     >
                       <Icon className="h-4 w-4 mr-2" />
@@ -86,7 +86,7 @@ export const Layout = () => {
                     variant={isActive ? 'default' : 'ghost'}
                     size="sm"
                     className={`font-bold text-xs ${
-                      isActive ? 'bg-yellow-500 text-black' : 'text-muted-foreground'
+                      isActive ? 'bg-primary text-black' : 'text-muted-foreground'
                     }`}
                   >
                     <Icon className="h-4 w-4" />

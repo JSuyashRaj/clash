@@ -52,7 +52,7 @@ export default function TeamsPage() {
           transition={{ duration: 0.4 }}
         >
           <h1 className="font-heading font-black text-4xl sm:text-5xl tracking-tighter uppercase text-foreground mb-2">
-            All <span className="text-yellow-500">Teams</span>
+            All <span className="text-primary">Teams</span>
           </h1>
           <p className="text-lg text-muted-foreground font-medium mb-8">
             14 teams across 2 pools
@@ -67,7 +67,7 @@ export default function TeamsPage() {
           <div className="space-y-12">
             {['X', 'Y'].map(pool => (
               <div key={pool}>
-                <h2 className="font-heading font-bold text-2xl tracking-tight uppercase text-yellow-500 mb-6">
+                <h2 className="font-heading font-bold text-2xl tracking-tight uppercase text-primary mb-6">
                   Pool {pool}
                 </h2>
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -80,12 +80,12 @@ export default function TeamsPage() {
                       whileHover={{ y: -4 }}
                       data-testid={`team-card-${team.id}`}
                     >
-                      <Card className="rounded-xl border border-white/10 bg-card/50 backdrop-blur-sm hover:border-yellow-500/50 transition-all duration-300 h-full">
+                      <Card className="rounded-xl border border-white/10 bg-card/50 backdrop-blur-sm hover:border-primary/50 transition-all duration-300 h-full">
                         <CardHeader className="border-b border-border pb-4">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
-                                <span className="px-2 py-1 bg-yellow-500 text-black font-mono font-bold text-xs rounded">
+                                <span className="px-2 py-1 bg-primary text-black font-mono font-bold text-xs rounded">
                                   {team.pool}{team.pool_number}
                                 </span>
                               </div>
@@ -94,7 +94,7 @@ export default function TeamsPage() {
                               </CardTitle>
                             </div>
                             <div className="text-right">
-                              <p className="font-mono font-black text-3xl text-yellow-500">{team.points}</p>
+                              <p className="font-mono font-black text-3xl text-primary">{team.points}</p>
                               <p className="text-xs text-muted-foreground">points</p>
                             </div>
                           </div>
@@ -127,7 +127,7 @@ export default function TeamsPage() {
                                   data-testid={`player-${player.id}`}
                                 >
                                   <Avatar className="h-6 w-6">
-                                    <AvatarFallback className="bg-yellow-500 text-black text-xs font-bold">
+                                    <AvatarFallback className="bg-primary text-black text-xs font-bold">
                                       {player.name.charAt(0)}
                                     </AvatarFallback>
                                   </Avatar>

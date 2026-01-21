@@ -262,10 +262,10 @@ export default function AdminClashesPage() {
       };
     }
     return {
-      border: 'border-yellow-500/50',
+      border: 'border-primary/50',
       bg: 'bg-card/50',
-      text: 'text-yellow-500',
-      badge: 'bg-yellow-500',
+      text: 'text-primary',
+      badge: 'bg-primary',
       glow: 'shadow-[0_0_20px_-5px_rgba(234,179,8,0.5)]'
     };
   };
@@ -297,7 +297,7 @@ export default function AdminClashesPage() {
           <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
             <div>
               <h1 className="font-heading font-black text-4xl sm:text-5xl tracking-tighter uppercase text-foreground mb-2">
-                Manage <span className="text-yellow-500">Clashes</span>
+                Manage <span className="text-primary">Clashes</span>
               </h1>
               <p className="text-lg text-muted-foreground font-medium">
                 Score entry & match management
@@ -327,7 +327,7 @@ export default function AdminClashesPage() {
                         value={notifForm.title}
                         onChange={(e) => setNotifForm({ ...notifForm, title: e.target.value })}
                         required
-                        className="rounded-lg bg-secondary/50 border-transparent focus:border-yellow-500 focus:ring-0 h-12"
+                        className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
                         data-testid="notif-title-input"
                       />
                     </div>
@@ -337,11 +337,11 @@ export default function AdminClashesPage() {
                         value={notifForm.message}
                         onChange={(e) => setNotifForm({ ...notifForm, message: e.target.value })}
                         required
-                        className="rounded-lg bg-secondary/50 border-transparent focus:border-yellow-500 focus:ring-0"
+                        className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0"
                         data-testid="notif-message-input"
                       />
                     </div>
-                    <Button type="submit" className="w-full font-bold uppercase tracking-wider bg-yellow-500 text-black hover:bg-yellow-400" data-testid="notif-submit-btn">
+                    <Button type="submit" className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400" data-testid="notif-submit-btn">
                       Send Notification
                     </Button>
                   </form>
@@ -350,7 +350,7 @@ export default function AdminClashesPage() {
               
               <Dialog open={showClashDialog} onOpenChange={setShowClashDialog}>
                 <DialogTrigger asChild>
-                  <Button className="font-bold uppercase tracking-wider bg-yellow-500 text-black hover:bg-yellow-400" style={{ boxShadow: '0 0 20px -5px rgba(234, 179, 8, 0.5)' }} data-testid="add-clash-btn">
+                  <Button className="font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400" style={{ boxShadow: '0 0 20px -5px rgba(234, 179, 8, 0.5)' }} data-testid="add-clash-btn">
                     <Plus className="mr-2 h-4 w-4" /> Add Clash
                   </Button>
                 </DialogTrigger>
@@ -368,7 +368,7 @@ export default function AdminClashesPage() {
                         onChange={(e) => setClashForm({ ...clashForm, clash_name: e.target.value })}
                         placeholder="e.g., Semi Final 1"
                         required
-                        className="rounded-lg bg-secondary/50 border-transparent focus:border-yellow-500 focus:ring-0 h-12"
+                        className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
                         data-testid="clash-name-input"
                       />
                     </div>
@@ -376,7 +376,7 @@ export default function AdminClashesPage() {
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Team 1</label>
                         <Select value={clashForm.team1_id} onValueChange={(val) => setClashForm({ ...clashForm, team1_id: val })}>
-                          <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent focus:border-yellow-500 focus:ring-0 h-12" data-testid="team1-select">
+                          <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12" data-testid="team1-select">
                             <SelectValue placeholder="Select Team 1" />
                           </SelectTrigger>
                           <SelectContent className="bg-card border border-white/10">
@@ -389,7 +389,7 @@ export default function AdminClashesPage() {
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Team 2</label>
                         <Select value={clashForm.team2_id} onValueChange={(val) => setClashForm({ ...clashForm, team2_id: val })}>
-                          <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent focus:border-yellow-500 focus:ring-0 h-12" data-testid="team2-select">
+                          <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12" data-testid="team2-select">
                             <SelectValue placeholder="Select Team 2" />
                           </SelectTrigger>
                           <SelectContent className="bg-card border border-white/10">
@@ -420,11 +420,11 @@ export default function AdminClashesPage() {
                         type="datetime-local"
                         value={clashForm.scheduled_time}
                         onChange={(e) => setClashForm({ ...clashForm, scheduled_time: e.target.value })}
-                        className="rounded-lg bg-secondary/50 border-transparent focus:border-yellow-500 focus:ring-0 h-12"
+                        className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
                         data-testid="scheduled-time-input"
                       />
                     </div>
-                    <Button type="submit" className="w-full font-bold uppercase tracking-wider bg-yellow-500 text-black hover:bg-yellow-400" data-testid="clash-submit-btn">
+                    <Button type="submit" className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400" data-testid="clash-submit-btn">
                       Create Clash
                     </Button>
                   </form>
@@ -508,10 +508,10 @@ export default function AdminClashesPage() {
                                 accept="image/*"
                                 onChange={(e) => setPhotoFile(e.target.files[0])}
                                 required
-                                className="rounded-lg bg-secondary/50 border-transparent focus:border-yellow-500 focus:ring-0 h-12"
+                                className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
                                 data-testid="photo-input"
                               />
-                              <Button type="submit" className="w-full font-bold uppercase tracking-wider bg-yellow-500 text-black hover:bg-yellow-400" data-testid="photo-submit-btn">
+                              <Button type="submit" className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400" data-testid="photo-submit-btn">
                                 Upload Photo
                               </Button>
                             </form>
@@ -578,7 +578,7 @@ export default function AdminClashesPage() {
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Match Status</label>
                     <Select value={scoreForm.status} onValueChange={(val) => setScoreForm({ ...scoreForm, status: val })}>
-                      <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent focus:border-yellow-500 focus:ring-0 h-12" data-testid="status-select">
+                      <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12" data-testid="status-select">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-card border border-white/10">
@@ -594,7 +594,7 @@ export default function AdminClashesPage() {
                       type="datetime-local"
                       value={scoreForm.start_time}
                       onChange={(e) => setScoreForm({ ...scoreForm, start_time: e.target.value })}
-                      className="rounded-lg bg-secondary/50 border-transparent focus:border-yellow-500 focus:ring-0 h-12"
+                      className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
                       data-testid="start-time-input"
                     />
                   </div>
@@ -604,7 +604,7 @@ export default function AdminClashesPage() {
                       type="datetime-local"
                       value={scoreForm.end_time}
                       onChange={(e) => setScoreForm({ ...scoreForm, end_time: e.target.value })}
-                      className="rounded-lg bg-secondary/50 border-transparent focus:border-yellow-500 focus:ring-0 h-12"
+                      className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
                       data-testid="end-time-input"
                     />
                   </div>
@@ -615,13 +615,13 @@ export default function AdminClashesPage() {
                     <div key={idx} className={`border rounded-lg p-4 space-y-4 ${
                       editingClash && isKnockout(editingClash.stage)
                         ? 'border-red-500/30 bg-red-950/20'
-                        : 'border-yellow-500/30 bg-yellow-500/5'
+                        : 'border-primary/30 bg-primary/5'
                     }`}>
                       <div className="flex items-center justify-between">
                         <span className={`font-mono font-bold text-sm px-3 py-1 rounded ${
                           editingClash && isKnockout(editingClash.stage)
                             ? 'bg-red-500 text-black'
-                            : 'bg-yellow-500 text-black'
+                            : 'bg-primary text-black'
                         }`}>
                           Match {idx + 1}
                         </span>
@@ -811,8 +811,8 @@ export default function AdminClashesPage() {
                   ))}
                 </div>
                 
-                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-                  <p className="text-sm font-bold text-yellow-500 mb-2">⚡ Auto-Stop Rules:</p>
+                <div className="bg-primary/10 border border-primary/30 rounded-lg p-4">
+                  <p className="text-sm font-bold text-primary mb-2">⚡ Auto-Stop Rules:</p>
                   <ul className="text-xs text-muted-foreground space-y-1">
                     <li>• When a team reaches 3 match wins, clash ends automatically</li>
                     <li>• Remaining matches are disabled</li>
@@ -820,7 +820,7 @@ export default function AdminClashesPage() {
                   </ul>
                 </div>
                 
-                <Button type="submit" className="w-full font-bold uppercase tracking-wider bg-yellow-500 text-black hover:bg-yellow-400" data-testid="score-submit-btn">
+                <Button type="submit" className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400" data-testid="score-submit-btn">
                   Update Scores
                 </Button>
               </form>

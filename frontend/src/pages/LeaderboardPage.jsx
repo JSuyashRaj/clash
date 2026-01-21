@@ -37,10 +37,10 @@ export default function LeaderboardPage() {
   
   const getMedalIcon = (position) => {
     const medals = {
-      0: { icon: Trophy, color: 'text-yellow-500', bg: 'bg-yellow-500/20' },
+      0: { icon: Trophy, color: 'text-primary', bg: 'bg-primary/20' },
       1: { icon: Medal, color: 'text-gray-400', bg: 'bg-gray-400/20' },
       2: { icon: Medal, color: 'text-orange-600', bg: 'bg-orange-600/20' },
-      3: { icon: TrendingUp, color: 'text-yellow-500', bg: 'bg-yellow-500/10' }
+      3: { icon: TrendingUp, color: 'text-primary', bg: 'bg-primary/10' }
     };
     return medals[position] || { icon: TrendingUp, color: 'text-muted-foreground', bg: 'bg-secondary' };
   };
@@ -73,8 +73,8 @@ export default function LeaderboardPage() {
             >
               <Card className={`rounded-xl border backdrop-blur-sm transition-all duration-300 ${
                 isQualified
-                  ? 'border-yellow-500/30 bg-gradient-to-r from-card/80 to-card/50 hover:border-yellow-500/50'
-                  : 'border-white/10 bg-card/50 hover:border-yellow-500/30'
+                  ? 'border-primary/30 bg-gradient-to-r from-card/80 to-card/50 hover:border-primary/50'
+                  : 'border-white/10 bg-card/50 hover:border-primary/30'
               }`}>
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center gap-4">
@@ -88,7 +88,7 @@ export default function LeaderboardPage() {
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="px-2 py-1 bg-yellow-500 text-black font-mono font-bold text-xs rounded">
+                        <span className="px-2 py-1 bg-primary text-black font-mono font-bold text-xs rounded">
                           {team.pool}{team.pool_number}
                         </span>
                         {isQualified && (
@@ -118,7 +118,7 @@ export default function LeaderboardPage() {
                     </div>
                     
                     <div className="text-right flex-shrink-0">
-                      <p className="font-mono font-black text-3xl sm:text-4xl text-yellow-500">{team.points}</p>
+                      <p className="font-mono font-black text-3xl sm:text-4xl text-primary">{team.points}</p>
                       <p className="text-xs text-muted-foreground">points</p>
                       <p className="text-xs text-muted-foreground mt-1">
                         Diff: {team.point_difference > 0 ? '+' : ''}{team.point_difference}
@@ -158,7 +158,7 @@ export default function LeaderboardPage() {
           transition={{ duration: 0.4 }}
         >
           <h1 className="font-heading font-black text-4xl sm:text-5xl tracking-tighter uppercase text-foreground mb-2">
-            <span className="text-yellow-500">Leaderboard</span>
+            <span className="text-primary">Leaderboard</span>
           </h1>
           <p className="text-lg text-muted-foreground font-medium mb-8">
             Rankings: Points → Matches Lost → Point Difference
@@ -178,15 +178,15 @@ export default function LeaderboardPage() {
             
             <TabsContent value="X">
               {renderTeams(poolXTeams)}
-              <div className="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-                <p className="text-xs font-bold text-yellow-500">Top 4 teams qualify for knockouts</p>
+              <div className="mt-6 p-4 bg-primary/10 border border-primary/30 rounded-lg">
+                <p className="text-xs font-bold text-primary">Top 4 teams qualify for knockouts</p>
               </div>
             </TabsContent>
             
             <TabsContent value="Y">
               {renderTeams(poolYTeams)}
-              <div className="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-                <p className="text-xs font-bold text-yellow-500">Top 4 teams qualify for knockouts</p>
+              <div className="mt-6 p-4 bg-primary/10 border border-primary/30 rounded-lg">
+                <p className="text-xs font-bold text-primary">Top 4 teams qualify for knockouts</p>
               </div>
             </TabsContent>
           </Tabs>

@@ -182,7 +182,7 @@ export default function AdminTeamsPage() {
           <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
             <div>
               <h1 className="font-heading font-black text-4xl sm:text-5xl tracking-tighter uppercase text-foreground mb-2">
-                Manage <span className="text-yellow-500">Teams</span>
+                Manage <span className="text-primary">Teams</span>
               </h1>
               <p className="text-lg text-muted-foreground font-medium">
                 14 teams • 2 pools • Each team plays 4 clashes
@@ -193,7 +193,7 @@ export default function AdminTeamsPage() {
                 <DialogTrigger asChild>
                   <Button
                     variant="outline"
-                    className="font-bold uppercase tracking-wider border-2 border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black"
+                    className="font-bold uppercase tracking-wider border-2 border-primary text-primary hover:bg-primary hover:text-black"
                     data-testid="generate-fixtures-btn"
                   >
                     <Zap className="mr-2 h-4 w-4" /> Generate Fixtures
@@ -215,11 +215,11 @@ export default function AdminTeamsPage() {
                         <li>• Circular format as per tournament rules</li>
                       </ul>
                     </div>
-                    <p className="text-sm text-yellow-500 font-bold">⚠️ This will create all league clashes at once</p>
+                    <p className="text-sm text-primary font-bold">⚠️ This will create all league clashes at once</p>
                     <Button
                       onClick={handleGenerateFixtures}
                       disabled={generatingFixtures || teams.length < 14}
-                      className="w-full font-bold uppercase tracking-wider bg-yellow-500 text-black hover:bg-yellow-400"
+                      className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400"
                       data-testid="confirm-generate-fixtures"
                     >
                       {generatingFixtures ? 'Generating...' : 'Generate All Fixtures'}
@@ -234,7 +234,7 @@ export default function AdminTeamsPage() {
               <Dialog open={showTeamDialog} onOpenChange={setShowTeamDialog}>
                 <DialogTrigger asChild>
                   <Button
-                    className="font-bold uppercase tracking-wider bg-yellow-500 text-black hover:bg-yellow-400"
+                    className="font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400"
                     style={{ boxShadow: '0 0 20px -5px rgba(234, 179, 8, 0.5)' }}
                     onClick={() => {
                       setEditingTeam(null);
@@ -261,7 +261,7 @@ export default function AdminTeamsPage() {
                         onChange={(e) => setTeamForm({ ...teamForm, name: e.target.value })}
                         placeholder="Enter team name"
                         required
-                        className="rounded-lg bg-secondary/50 border-transparent focus:border-yellow-500 focus:ring-0 h-12"
+                        className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
                         data-testid="team-name-input"
                       />
                     </div>
@@ -271,7 +271,7 @@ export default function AdminTeamsPage() {
                           Pool
                         </label>
                         <Select value={teamForm.pool} onValueChange={(val) => setTeamForm({ ...teamForm, pool: val })}>
-                          <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent focus:border-yellow-500 focus:ring-0 h-12" data-testid="pool-select">
+                          <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12" data-testid="pool-select">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="bg-card border border-white/10">
@@ -285,7 +285,7 @@ export default function AdminTeamsPage() {
                           Number (1-7)
                         </label>
                         <Select value={String(teamForm.pool_number)} onValueChange={(val) => setTeamForm({ ...teamForm, pool_number: parseInt(val) })}>
-                          <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent focus:border-yellow-500 focus:ring-0 h-12" data-testid="pool-number-select">
+                          <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12" data-testid="pool-number-select">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="bg-card border border-white/10">
@@ -296,12 +296,12 @@ export default function AdminTeamsPage() {
                         </Select>
                       </div>
                     </div>
-                    <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
-                      <p className="text-xs text-yellow-500 font-bold">Team ID: {teamForm.pool}{teamForm.pool_number}</p>
+                    <div className="bg-primary/10 border border-primary/30 rounded-lg p-3">
+                      <p className="text-xs text-primary font-bold">Team ID: {teamForm.pool}{teamForm.pool_number}</p>
                     </div>
                     <Button
                       type="submit"
-                      className="w-full font-bold uppercase tracking-wider bg-yellow-500 text-black hover:bg-yellow-400"
+                      className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400"
                       data-testid="team-submit-btn"
                     >
                       {editingTeam ? 'Update Team' : 'Create Team'}
@@ -316,7 +316,7 @@ export default function AdminTeamsPage() {
         <div className="space-y-8">
           {['X', 'Y'].map(pool => (
             <div key={pool}>
-              <h2 className="font-heading font-bold text-2xl tracking-tight uppercase text-yellow-500 mb-4">
+              <h2 className="font-heading font-bold text-2xl tracking-tight uppercase text-primary mb-4">
                 Pool {pool} ({getPoolTeams(pool).length}/7 teams)
               </h2>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -328,12 +328,12 @@ export default function AdminTeamsPage() {
                     transition={{ duration: 0.4, delay: idx * 0.05 }}
                     data-testid={`admin-team-${team.id}`}
                   >
-                    <Card className="rounded-xl border border-yellow-500/20 bg-card/50 backdrop-blur-sm hover:border-yellow-500/50 transition-all duration-300">
+                    <Card className="rounded-xl border border-primary/20 bg-card/50 backdrop-blur-sm hover:border-primary/50 transition-all duration-300">
                       <CardHeader className="border-b border-border pb-4">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
-                              <span className="px-2 py-1 bg-yellow-500 text-black font-mono font-bold text-xs rounded">
+                              <span className="px-2 py-1 bg-primary text-black font-mono font-bold text-xs rounded">
                                 {team.pool}{team.pool_number}
                               </span>
                             </div>
@@ -433,13 +433,13 @@ export default function AdminTeamsPage() {
                   onChange={(e) => setPlayerForm({ ...playerForm, name: e.target.value })}
                   placeholder="Enter player name"
                   required
-                  className="rounded-lg bg-secondary/50 border-transparent focus:border-yellow-500 focus:ring-0 h-12"
+                  className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
                   data-testid="player-name-input"
                 />
               </div>
               <Button
                 type="submit"
-                className="w-full font-bold uppercase tracking-wider bg-yellow-500 text-black hover:bg-yellow-400"
+                className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400"
                 data-testid="player-submit-btn"
               >
                 Add Player

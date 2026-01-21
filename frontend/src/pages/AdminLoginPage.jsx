@@ -44,11 +44,11 @@ export default function AdminLoginPage() {
       >
         <Card className="rounded-xl border border-white/10 bg-card/80 backdrop-blur-sm">
           <CardHeader className="text-center">
-            <div className="mx-auto bg-yellow-500 rounded-full p-4 w-fit mb-4" style={{ boxShadow: '0 0 20px -5px rgba(234, 179, 8, 0.5)' }}>
+            <div className="mx-auto bg-primary rounded-full p-4 w-fit mb-4" style={{ boxShadow: '0 0 20px -5px rgba(234, 179, 8, 0.5)' }}>
               <Shield className="h-8 w-8 text-black" />
             </div>
             <CardTitle className="font-heading font-bold text-3xl tracking-tight uppercase">
-              Main <span className="text-yellow-500">Admin</span>
+              Main <span className="text-primary">Admin</span>
             </CardTitle>
             <CardDescription className="text-muted-foreground">
               Tournament Management Access
@@ -67,7 +67,7 @@ export default function AdminLoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter admin password"
-                    className="pl-10 rounded-lg bg-secondary/50 border-transparent focus:border-yellow-500 focus:ring-0 h-12"
+                    className="pl-10 rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
                     required
                     data-testid="admin-password-input"
                   />
@@ -77,7 +77,7 @@ export default function AdminLoginPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full font-bold uppercase tracking-wider bg-yellow-500 text-black hover:bg-yellow-400"
+                className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400"
                 style={{ boxShadow: '0 0 20px -5px rgba(234, 179, 8, 0.5)' }}
                 data-testid="admin-login-submit"
               >

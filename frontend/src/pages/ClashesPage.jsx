@@ -55,7 +55,7 @@ export default function ClashesPage() {
           transition={{ duration: 0.4 }}
         >
           <h1 className="font-heading font-black text-4xl sm:text-5xl tracking-tighter uppercase text-foreground mb-2">
-            All <span className="text-yellow-500">Clashes</span>
+            All <span className="text-primary">Clashes</span>
           </h1>
           <p className="text-lg text-muted-foreground font-medium mb-8">
             Track every clash in the tournament
@@ -102,18 +102,18 @@ export default function ClashesPage() {
                             clash.status === 'live' 
                               ? knockout 
                                 ? 'border-red-500/50 bg-gradient-to-br from-red-950/30 to-card/50' 
-                                : 'border-yellow-500/50 bg-card/50' 
-                              : 'border-white/10 bg-card/50 hover:border-yellow-500/50'
+                                : 'border-primary/50 bg-card/50' 
+                              : 'border-white/10 bg-card/50 hover:border-primary/50'
                           }`} style={clash.status === 'live' ? { boxShadow: knockout ? '0 0 20px -5px rgba(239, 68, 68, 0.5)' : '0 0 20px -5px rgba(234, 179, 8, 0.5)' } : {}}>
                             <CardContent className="p-6">
                               <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-2">
-                                  {clash.status === 'live' && <span className={`w-3 h-3 rounded-full animate-pulse ${knockout ? 'bg-red-500' : 'bg-yellow-500'}`} />}
+                                  {clash.status === 'live' && <span className={`w-3 h-3 rounded-full animate-pulse ${knockout ? 'bg-red-500' : 'bg-primary'}`} />}
                                   {clash.status === 'upcoming' && <Clock className="h-4 w-4 text-muted-foreground" />}
                                   {clash.status === 'completed' && <CheckCircle className="h-4 w-4 text-green-500" />}
                                   <span className={`px-3 py-1 rounded-full font-mono font-bold text-xs uppercase ${
                                     clash.status === 'live' 
-                                      ? knockout ? 'bg-red-500 text-black' : 'bg-yellow-500 text-black'
+                                      ? knockout ? 'bg-red-500 text-black' : 'bg-primary text-black'
                                       : clash.status === 'upcoming' ? 'bg-secondary text-foreground' : 'bg-green-500/20 text-green-500'
                                   }`}>
                                     {clash.status}
@@ -136,9 +136,9 @@ export default function ClashesPage() {
                                 <div className="text-center px-4">
                                   {clash.status === 'completed' || clash.status === 'live' ? (
                                     <div className="flex items-center gap-3">
-                                      <span className={`font-mono font-black text-3xl ${knockout ? 'text-red-500' : 'text-yellow-500'}`}>{clash.team1_games_won}</span>
+                                      <span className={`font-mono font-black text-3xl ${knockout ? 'text-red-500' : 'text-primary'}`}>{clash.team1_games_won}</span>
                                       <span className="font-mono text-sm text-muted-foreground">-</span>
-                                      <span className={`font-mono font-black text-3xl ${knockout ? 'text-red-500' : 'text-yellow-500'}`}>{clash.team2_games_won}</span>
+                                      <span className={`font-mono font-black text-3xl ${knockout ? 'text-red-500' : 'text-primary'}`}>{clash.team2_games_won}</span>
                                     </div>
                                   ) : (
                                     <span className="font-mono text-sm text-muted-foreground">VS</span>
@@ -164,7 +164,7 @@ export default function ClashesPage() {
                                   </p>
                                 )}
                                 {clash.status === 'completed' && clash.winner_id && (
-                                  <p className={`text-sm font-bold ${knockout ? 'text-red-500' : 'text-yellow-500'}`}>
+                                  <p className={`text-sm font-bold ${knockout ? 'text-red-500' : 'text-primary'}`}>
                                     Winner: {teams[clash.winner_id]?.name}
                                   </p>
                                 )}

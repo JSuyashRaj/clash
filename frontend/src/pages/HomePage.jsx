@@ -63,7 +63,7 @@ export default function HomePage() {
           >
             <h1 className="font-heading font-black text-4xl sm:text-5xl lg:text-6xl tracking-tighter uppercase text-foreground mb-4">
               Clash of Shuttles
-              <span className="text-yellow-500"> 2026</span>
+              <span className="text-primary"> 2026</span>
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground font-medium leading-relaxed mb-8">
               14 Teams • 2 Pools • 28 League Clashes<br className="hidden sm:block" />
@@ -71,7 +71,7 @@ export default function HomePage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/clashes" data-testid="view-clashes-btn">
-                <Button size="lg" className="font-bold uppercase tracking-wider bg-yellow-500 text-black hover:bg-yellow-400" style={{ boxShadow: '0 0 20px -5px rgba(234, 179, 8, 0.5)' }}>
+                <Button size="lg" className="font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400" style={{ boxShadow: '0 0 20px -5px rgba(234, 179, 8, 0.5)' }}>
                   <Zap className="mr-2 h-5 w-5" />
                   View Live Clashes
                 </Button>
@@ -97,7 +97,7 @@ export default function HomePage() {
           >
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-heading font-bold text-2xl tracking-tight uppercase flex items-center gap-3">
-                <span className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse" />
+                <span className="w-3 h-3 bg-primary rounded-full animate-pulse" />
                 Live Clashes
               </h2>
             </div>
@@ -110,24 +110,24 @@ export default function HomePage() {
                     transition={{ duration: 0.4, delay: idx * 0.1 }}
                     whileHover={{ y: -4 }}
                   >
-                    <Card className="rounded-xl border-2 border-yellow-500/50 bg-card backdrop-blur-sm hover:border-yellow-500 transition-all duration-300 cursor-pointer" style={{ boxShadow: '0 0 20px -5px rgba(234, 179, 8, 0.5)' }}>
+                    <Card className="rounded-xl border-2 border-primary/50 bg-card backdrop-blur-sm hover:border-primary transition-all duration-300 cursor-pointer" style={{ boxShadow: '0 0 20px -5px rgba(234, 179, 8, 0.5)' }}>
                       <CardContent className="p-6">
                         <div className="flex items-center justify-center mb-4">
-                          <span className="px-4 py-1 bg-yellow-500 text-black font-mono font-bold text-xs uppercase rounded-full animate-pulse">
+                          <span className="px-4 py-1 bg-primary text-black font-mono font-bold text-xs uppercase rounded-full animate-pulse">
                             • LIVE
                           </span>
                         </div>
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-center">
                             <p className="font-bold text-lg text-foreground mb-1">{clash.clash_name.split(' vs ')[0]}</p>
-                            <p className="font-mono font-black text-3xl text-yellow-500 mt-2">{clash.team1_games_won}</p>
+                            <p className="font-mono font-black text-3xl text-primary mt-2">{clash.team1_games_won}</p>
                           </div>
                           <div className="text-center">
                             <p className="font-mono text-xs text-muted-foreground">VS</p>
                           </div>
                           <div className="text-center">
                             <p className="font-bold text-lg text-foreground mb-1">{clash.clash_name.split(' vs ')[1]}</p>
-                            <p className="font-mono font-black text-3xl text-yellow-500 mt-2">{clash.team2_games_won}</p>
+                            <p className="font-mono font-black text-3xl text-primary mt-2">{clash.team2_games_won}</p>
                           </div>
                         </div>
                       </CardContent>
@@ -145,10 +145,10 @@ export default function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.3 }}
           >
-            <Card className="rounded-xl border border-white/10 bg-card/50 backdrop-blur-sm hover:border-yellow-500/50 transition-all duration-300 h-full">
+            <Card className="rounded-xl border border-white/10 bg-card/50 backdrop-blur-sm hover:border-primary/50 transition-all duration-300 h-full">
               <CardHeader>
                 <CardTitle className="font-heading font-bold text-xl tracking-tight uppercase flex items-center">
-                  <Calendar className="mr-2 h-5 w-5 text-yellow-500" />
+                  <Calendar className="mr-2 h-5 w-5 text-primary" />
                   Upcoming Clashes
                 </CardTitle>
               </CardHeader>
@@ -156,7 +156,7 @@ export default function HomePage() {
                 {upcomingClashes.length > 0 ? (
                   upcomingClashes.map((clash) => (
                     <Link key={clash.id} to={`/clashes/${clash.id}`} data-testid={`upcoming-clash-${clash.id}`}>
-                      <div className="p-4 bg-secondary/50 rounded-lg hover:bg-secondary transition-colors cursor-pointer border border-transparent hover:border-yellow-500/30">
+                      <div className="p-4 bg-secondary/50 rounded-lg hover:bg-secondary transition-colors cursor-pointer border border-transparent hover:border-primary/30">
                         <p className="font-mono text-xs text-muted-foreground mb-1">{clash.stage.toUpperCase()}</p>
                         <p className="font-bold text-foreground">{clash.clash_name}</p>
                         {clash.scheduled_time && (
@@ -184,10 +184,10 @@ export default function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.4 }}
           >
-            <Card className="rounded-xl border border-white/10 bg-card/50 backdrop-blur-sm hover:border-yellow-500/50 transition-all duration-300 h-full">
+            <Card className="rounded-xl border border-white/10 bg-card/50 backdrop-blur-sm hover:border-primary/50 transition-all duration-300 h-full">
               <CardHeader>
                 <CardTitle className="font-heading font-bold text-xl tracking-tight uppercase flex items-center">
-                  <Trophy className="mr-2 h-5 w-5 text-yellow-500" />
+                  <Trophy className="mr-2 h-5 w-5 text-primary" />
                   Top Teams
                 </CardTitle>
               </CardHeader>
@@ -196,14 +196,14 @@ export default function HomePage() {
                   topTeams.map((team, idx) => (
                     <div key={team.id} className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg" data-testid={`top-team-${idx}`}>
                       <div className="flex items-center gap-3">
-                        <span className="font-mono font-bold text-2xl text-yellow-500 w-8">#{idx + 1}</span>
+                        <span className="font-mono font-bold text-2xl text-primary w-8">#{idx + 1}</span>
                         <div>
                           <p className="font-bold text-foreground">{team.name}</p>
                           <p className="text-xs text-muted-foreground">{team.pool}{team.pool_number}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-mono font-bold text-xl text-yellow-500">{team.points}</p>
+                        <p className="font-mono font-bold text-xl text-primary">{team.points}</p>
                         <p className="text-xs text-muted-foreground">points</p>
                       </div>
                     </div>
@@ -230,13 +230,13 @@ export default function HomePage() {
             <Card className="rounded-xl border border-white/10 bg-card/50 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="font-heading font-bold text-xl tracking-tight uppercase flex items-center">
-                  <Zap className="mr-2 h-5 w-5 text-yellow-500" />
+                  <Zap className="mr-2 h-5 w-5 text-primary" />
                   Latest Updates
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {notifications.map((notif) => (
-                  <div key={notif.id} className="p-4 bg-secondary/30 rounded-lg border-l-4 border-yellow-500" data-testid={`notification-${notif.id}`}>
+                  <div key={notif.id} className="p-4 bg-secondary/30 rounded-lg border-l-4 border-primary" data-testid={`notification-${notif.id}`}>
                     <p className="font-bold text-foreground">{notif.title}</p>
                     <p className="text-sm text-muted-foreground mt-1">{notif.message}</p>
                     <p className="text-xs text-muted-foreground mt-2 font-mono">
