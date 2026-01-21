@@ -451,14 +451,20 @@ export default function AdminTeamsPage() {
           ))}
         </div>
         
-        <Dialog open={showPlayerDialog} onOpenChange={setShowPlayerDialog}>
+        <Dialog open={showPlayerDialog} onOpenChange={(open) => {
+          setShowPlayerDialog(open);
+          if (!open) {
+            setEditingPlayer(null);
+            setPlayerForm({ name: '', team_id: '' });
+          }
+        }}>
           <DialogContent className="bg-card border border-white/10 sm:rounded-2xl">
             <DialogHeader>
               <DialogTitle className="font-heading font-bold text-2xl tracking-tight uppercase">
-                Add New Player
+                {editingPlayer ? 'Edit Player' : 'Add New Player'}
               </DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleCreatePlayer} className="space-y-4">
+            <form onSubmit={editingPlayer ? handleUpdatePlayer : handleCreatePlayer} className="space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">
                   Player Name
@@ -472,12 +478,29 @@ export default function AdminTeamsPage() {
                   data-testid="player-name-input"
                 />
               </div>
+              {editingPlayer && (
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">
+                    Team
+                  </label>
+                  <Select value={playerForm.team_id} onValueChange={(val) => setPlayerForm({ ...playerForm, team_id: val })}>
+                    <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12" data-testid="player-team-select">
+                      <SelectValue placeholder="Select team" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border border-white/10">
+                      {teams.map(t => (
+                        <SelectItem key={t.id} value={t.id}>{t.pool}{t.pool_number} - {t.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <Button
                 type="submit"
                 className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400"
                 data-testid="player-submit-btn"
               >
-                Add Player
+                {editingPlayer ? 'Update Player' : 'Add Player'}
               </Button>
             </form>
           </DialogContent>
