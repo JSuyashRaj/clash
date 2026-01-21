@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Shield, Lock, Users, Clipboard, Calendar } from 'lucide-react';
+import { Shield, Lock } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
@@ -11,59 +11,19 @@ import axios from 'axios';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-const adminRoles = [
-  {
-    id: 'main',
-    name: 'Main Admin',
-    description: 'Manage teams & schedule matches',
-    icon: Calendar,
-    color: 'bg-primary',
-    hoverColor: 'hover:border-primary',
-    textColor: 'text-primary'
-  },
-  {
-    id: 'umpire',
-    name: 'Umpire Admin',
-    description: 'Update match scores only',
-    icon: Clipboard,
-    color: 'bg-cyan-500',
-    hoverColor: 'hover:border-cyan-500',
-    textColor: 'text-cyan-500'
-  },
-  {
-    id: 'team',
-    name: 'Team Admin',
-    description: 'Manage team lineups',
-    icon: Users,
-    color: 'bg-orange-500',
-    hoverColor: 'hover:border-orange-500',
-    textColor: 'text-orange-500'
-  }
-];
-
 export default function AdminLoginPage() {
-  const [selectedRole, setSelectedRole] = useState(null);
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (!selectedRole) {
-      toast.error('Please select an admin role');
-      return;
-    }
-    
     setLoading(true);
     
     try {
-      const response = await axios.post(`${API}/admin/login`, { 
-        password,
-        role: selectedRole
-      });
+      const response = await axios.post(`${API}/admin/login`, { password });
       if (response.data.success) {
         localStorage.setItem('adminAuth', 'true');
-        localStorage.setItem('adminRole', selectedRole);
         toast.success('Login successful!');
         navigate('/admin/dashboard');
       }
@@ -80,52 +40,21 @@ export default function AdminLoginPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="w-full max-w-4xl"
+        className="w-full max-w-md"
       >
         <Card className="rounded-xl border border-white/10 bg-card/80 backdrop-blur-sm">
           <CardHeader className="text-center">
-            <div className="mx-auto bg-primary rounded-full p-4 w-fit mb-4 glow-primary">
-              <Shield className="h-8 w-8 text-primary-foreground" />
+            <div className="mx-auto bg-yellow-500 rounded-full p-4 w-fit mb-4" style={{ boxShadow: '0 0 20px -5px rgba(234, 179, 8, 0.5)' }}>
+              <Shield className="h-8 w-8 text-black" />
             </div>
             <CardTitle className="font-heading font-bold text-3xl tracking-tight uppercase">
-              Admin <span className="text-primary">Access</span>
+              Main <span className="text-yellow-500">Admin</span>
             </CardTitle>
             <CardDescription className="text-muted-foreground">
-              Select your role and enter password
+              Tournament Management Access
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-3 mb-6">
-              {adminRoles.map((role) => {
-                const Icon = role.icon;
-                const isSelected = selectedRole === role.id;
-                return (
-                  <motion.div
-                    key={role.id}
-                    whileHover={{ y: -4 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setSelectedRole(role.id)}
-                      className={`w-full p-6 rounded-xl border-2 transition-all duration-300 text-left ${
-                        isSelected
-                          ? `${role.color.replace('bg-', 'border-')} bg-opacity-10`
-                          : `border-white/10 ${role.hoverColor}`
-                      }`}
-                      data-testid={`role-${role.id}`}
-                    >
-                      <Icon className={`h-8 w-8 mb-3 ${role.textColor}`} />
-                      <h3 className="font-heading font-bold text-lg tracking-tight uppercase mb-1">
-                        {role.name}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">{role.description}</p>
-                    </button>
-                  </motion.div>
-                );
-              })}
-            </div>
-            
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">
@@ -138,7 +67,7 @@ export default function AdminLoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter admin password"
-                    className="pl-10 rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
+                    className="pl-10 rounded-lg bg-secondary/50 border-transparent focus:border-yellow-500 focus:ring-0 h-12"
                     required
                     data-testid="admin-password-input"
                   />
@@ -147,8 +76,9 @@ export default function AdminLoginPage() {
               
               <Button
                 type="submit"
-                disabled={loading || !selectedRole}
-                className="w-full font-bold uppercase tracking-wider glow-primary"
+                disabled={loading}
+                className="w-full font-bold uppercase tracking-wider bg-yellow-500 text-black hover:bg-yellow-400"
+                style={{ boxShadow: '0 0 20px -5px rgba(234, 179, 8, 0.5)' }}
                 data-testid="admin-login-submit"
               >
                 {loading ? 'Logging in...' : 'Access Admin Panel'}

@@ -8,34 +8,19 @@ export const Layout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const isAdmin = location.pathname.startsWith('/admin');
-  const adminRole = localStorage.getItem('adminRole') || 'main';
-  
-  const getRoleColor = () => {
-    const colors = {
-      main: 'primary',
-      umpire: 'cyan-500',
-      team: 'orange-500'
-    };
-    return colors[adminRole] || 'primary';
-  };
   
   const publicLinks = [
     { to: '/', label: 'Home', icon: Trophy },
     { to: '/teams', label: 'Teams', icon: Users },
-    { to: '/matches', label: 'Matches', icon: Calendar },
+    { to: '/clashes', label: 'Clashes', icon: Calendar },
     { to: '/leaderboard', label: 'Leaderboard', icon: Award },
   ];
   
-  const getAdminLinks = () => {
-    const allLinks = [
-      { to: '/admin/dashboard', label: 'Dashboard', icon: Trophy, roles: ['main', 'umpire', 'team'] },
-      { to: '/admin/teams', label: 'Teams', icon: Users, roles: ['main'] },
-      { to: '/admin/matches', label: 'Matches', icon: Calendar, roles: ['main', 'umpire'] },
-    ];
-    return allLinks.filter(link => link.roles.includes(adminRole));
-  };
-  
-  const adminLinks = getAdminLinks();
+  const adminLinks = [
+    { to: '/admin/dashboard', label: 'Dashboard', icon: Trophy },
+    { to: '/admin/teams', label: 'Teams', icon: Users },
+    { to: '/admin/clashes', label: 'Clashes', icon: Calendar },
+  ];
   
   const links = isAdmin ? adminLinks : publicLinks;
   
@@ -54,8 +39,8 @@ export const Layout = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link to={isAdmin ? '/admin/dashboard' : '/'} className="flex items-center space-x-3 group" data-testid="logo-link">
-              <div className="bg-primary rounded-lg p-2 group-hover:glow-primary transition-all duration-300">
-                <Trophy className="h-6 w-6 text-primary-foreground" />
+              <div className="bg-yellow-500 rounded-lg p-2 group-hover:shadow-[0_0_20px_-5px_rgba(234,179,8,0.5)] transition-all duration-300">
+                <Trophy className="h-6 w-6 text-black" />
               </div>
               <span className="font-heading font-black text-xl tracking-tighter uppercase text-foreground">Clash of Shuttles</span>
             </Link>
@@ -69,7 +54,7 @@ export const Layout = () => {
                     <Button
                       variant={isActive ? 'default' : 'ghost'}
                       className={`font-bold uppercase tracking-wider ${
-                        isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                        isActive ? 'bg-yellow-500 text-black hover:bg-yellow-400' : 'text-muted-foreground hover:text-foreground'
                       }`}
                     >
                       <Icon className="h-4 w-4 mr-2" />
@@ -101,7 +86,7 @@ export const Layout = () => {
                     variant={isActive ? 'default' : 'ghost'}
                     size="sm"
                     className={`font-bold text-xs ${
-                      isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
+                      isActive ? 'bg-yellow-500 text-black' : 'text-muted-foreground'
                     }`}
                   >
                     <Icon className="h-4 w-4" />
@@ -121,7 +106,7 @@ export const Layout = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center text-muted-foreground text-sm">
             <p className="font-mono">© 2026 Clash of Shuttles Tournament</p>
-            <p className="mt-1">Powered by badminton passion & competitive spirit</p>
+            <p className="mt-1">14 Teams • 2 Pools • 28 League Clashes</p>
           </div>
         </div>
       </footer>
