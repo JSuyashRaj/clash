@@ -182,6 +182,7 @@ export default function AdminTeamsPage() {
   
   const openAddPlayerDialog = (teamId) => {
     setSelectedTeamForPlayer(teamId);
+    setEditingPlayer(null);
     setPlayerForm({ name: '', team_id: teamId });
     setShowPlayerDialog(true);
   };
