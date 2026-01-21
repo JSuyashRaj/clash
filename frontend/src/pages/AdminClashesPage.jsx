@@ -403,10 +403,11 @@ export default function AdminClashesPage() {
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Stage</label>
                       <Select value={clashForm.stage} onValueChange={(val) => setClashForm({ ...clashForm, stage: val })}>
-                        <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent focus:border-yellow-500 focus:ring-0 h-12" data-testid="stage-select">
+                        <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12" data-testid="stage-select">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-card border border-white/10">
+                          <SelectItem value="league">League Stage</SelectItem>
                           <SelectItem value="knockout">Knockout</SelectItem>
                           <SelectItem value="semifinal">Semi Final</SelectItem>
                           <SelectItem value="final">Final</SelectItem>
