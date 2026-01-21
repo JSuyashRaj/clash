@@ -10,14 +10,13 @@ const API = `${BACKEND_URL}/api`;
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const [adminRole, setAdminRole] = useState('main');
   const [stats, setStats] = useState({
     totalTeams: 0,
     totalPlayers: 0,
-    totalMatches: 0,
-    liveMatches: 0,
-    upcomingMatches: 0,
-    completedMatches: 0
+    totalClashes: 0,
+    liveClashes: 0,
+    upcomingClashes: 0,
+    completedClashes: 0
   });
   
   useEffect(() => {
@@ -25,57 +24,37 @@ export default function AdminDashboard() {
       navigate('/admin/login');
       return;
     }
-    const role = localStorage.getItem('adminRole') || 'main';
-    setAdminRole(role);
     fetchStats();
   }, [navigate]);
   
   const fetchStats = async () => {
     try {
-      const [teamsRes, playersRes, matchesRes] = await Promise.all([
+      const [teamsRes, playersRes, clashesRes] = await Promise.all([
         axios.get(`${API}/teams`),
         axios.get(`${API}/players`),
-        axios.get(`${API}/matches`)
+        axios.get(`${API}/clashes`)
       ]);
       
       setStats({
         totalTeams: teamsRes.data.length,
         totalPlayers: playersRes.data.length,
-        totalMatches: matchesRes.data.length,
-        liveMatches: matchesRes.data.filter(m => m.status === 'live').length,
-        upcomingMatches: matchesRes.data.filter(m => m.status === 'upcoming').length,
-        completedMatches: matchesRes.data.filter(m => m.status === 'completed').length
+        totalClashes: clashesRes.data.length,
+        liveClashes: clashesRes.data.filter(m => m.status === 'live').length,
+        upcomingClashes: clashesRes.data.filter(m => m.status === 'upcoming').length,
+        completedClashes: clashesRes.data.filter(m => m.status === 'completed').length
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
     }
   };
   
-  const getRoleColor = () => {
-    const colors = {
-      main: 'text-primary',
-      umpire: 'text-cyan-500',
-      team: 'text-orange-500'
-    };
-    return colors[adminRole] || 'text-primary';
-  };
-  
-  const getRoleName = () => {
-    const names = {
-      main: 'Main Admin',
-      umpire: 'Umpire Admin',
-      team: 'Team Admin'
-    };
-    return names[adminRole] || 'Admin';
-  };
-  
   const statCards = [
-    { title: 'Total Teams', value: stats.totalTeams, icon: Users, color: 'text-primary' },
+    { title: 'Total Teams', value: stats.totalTeams, icon: Users, color: 'text-yellow-500' },
     { title: 'Total Players', value: stats.totalPlayers, icon: Users, color: 'text-blue-500' },
-    { title: 'Total Matches', value: stats.totalMatches, icon: Calendar, color: 'text-purple-500' },
-    { title: 'Live Matches', value: stats.liveMatches, icon: TrendingUp, color: 'text-green-500' },
-    { title: 'Upcoming', value: stats.upcomingMatches, icon: Calendar, color: 'text-yellow-500' },
-    { title: 'Completed', value: stats.completedMatches, icon: Trophy, color: 'text-gray-500' }
+    { title: 'Total Clashes', value: stats.totalClashes, icon: Calendar, color: 'text-purple-500' },
+    { title: 'Live Clashes', value: stats.liveClashes, icon: TrendingUp, color: 'text-green-500' },
+    { title: 'Upcoming', value: stats.upcomingClashes, icon: Calendar, color: 'text-yellow-500' },
+    { title: 'Completed', value: stats.completedClashes, icon: Trophy, color: 'text-gray-500' }
   ];
   
   return (
@@ -87,7 +66,7 @@ export default function AdminDashboard() {
           transition={{ duration: 0.4 }}
         >
           <h1 className="font-heading font-black text-4xl sm:text-5xl tracking-tighter uppercase text-foreground mb-2">
-            <span className={getRoleColor()}>{getRoleName()}</span> Dashboard
+            Main Admin <span className="text-yellow-500">Dashboard</span>
           </h1>
           <p className="text-lg text-muted-foreground font-medium mb-8">
             Tournament management overview
@@ -106,7 +85,7 @@ export default function AdminDashboard() {
                 whileHover={{ y: -4 }}
                 data-testid={`stat-${stat.title.toLowerCase().replace(/ /g, '-')}`}
               >
-                <Card className="rounded-xl border border-white/10 bg-card/50 backdrop-blur-sm hover:border-primary/50 transition-all duration-300">
+                <Card className="rounded-xl border border-white/10 bg-card/50 backdrop-blur-sm hover:border-yellow-500/50 transition-all duration-300">
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-sm font-bold text-muted-foreground uppercase tracking-wide">
                       {stat.title}
