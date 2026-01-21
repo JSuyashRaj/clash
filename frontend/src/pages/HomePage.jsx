@@ -10,8 +10,8 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 export default function HomePage() {
-  const [liveMatches, setLiveMatches] = useState([]);
-  const [upcomingMatches, setUpcomingMatches] = useState([]);
+  const [liveClashes, setLiveClashes] = useState([]);
+  const [upcomingClashes, setUpcomingClashes] = useState([]);
   const [topTeams, setTopTeams] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,14 +24,14 @@ export default function HomePage() {
   
   const fetchData = async () => {
     try {
-      const [matchesRes, teamsRes, notifsRes] = await Promise.all([
-        axios.get(`${API}/matches`),
+      const [clashesRes, teamsRes, notifsRes] = await Promise.all([
+        axios.get(`${API}/clashes`),
         axios.get(`${API}/leaderboard`),
         axios.get(`${API}/notifications`)
       ]);
       
-      setLiveMatches(matchesRes.data.filter(m => m.status === 'live'));
-      setUpcomingMatches(matchesRes.data.filter(m => m.status === 'upcoming').slice(0, 3));
+      setLiveClashes(clashesRes.data.filter(m => m.status === 'live'));
+      setUpcomingClashes(clashesRes.data.filter(m => m.status === 'upcoming').slice(0, 3));
       setTopTeams(teamsRes.data.slice(0, 4));
       setNotifications(notifsRes.data.slice(0, 5));
     } catch (error) {
@@ -52,7 +52,7 @@ export default function HomePage() {
         }}
       >
         <div className="absolute inset-0" style={{
-          background: 'radial-gradient(circle at 50% 50%, rgba(204, 255, 0, 0.15) 0%, rgba(9, 9, 11, 0) 70%)'
+          background: 'radial-gradient(circle at 50% 50%, rgba(234, 179, 8, 0.15) 0%, rgba(9, 9, 11, 0) 70%)'
         }} />
         
         <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
@@ -63,17 +63,17 @@ export default function HomePage() {
           >
             <h1 className="font-heading font-black text-4xl sm:text-5xl lg:text-6xl tracking-tighter uppercase text-foreground mb-4">
               Clash of Shuttles
-              <span className="text-primary"> 2026</span>
+              <span className="text-yellow-500"> 2026</span>
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground font-medium leading-relaxed mb-8">
-              Where Blocks Collide. Where Legends Rise. <br className="hidden sm:block" />
-              Experience the Ultimate Community Badminton Tournament.
+              14 Teams • 2 Pools • 28 League Clashes<br className="hidden sm:block" />
+              Where Blocks Collide. Where Legends Rise.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/matches" data-testid="view-matches-btn">
-                <Button size="lg" className="font-bold uppercase tracking-wider glow-primary">
+              <Link to="/clashes" data-testid="view-clashes-btn">
+                <Button size="lg" className="font-bold uppercase tracking-wider bg-yellow-500 text-black hover:bg-yellow-400" style={{ boxShadow: '0 0 20px -5px rgba(234, 179, 8, 0.5)' }}>
                   <Zap className="mr-2 h-5 w-5" />
-                  View Live Matches
+                  View Live Clashes
                 </Button>
               </Link>
               <Link to="/leaderboard" data-testid="leaderboard-btn">
@@ -88,7 +88,7 @@ export default function HomePage() {
       </div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {liveMatches.length > 0 && (
+        {liveClashes.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -97,13 +97,43 @@ export default function HomePage() {
           >
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-heading font-bold text-2xl tracking-tight uppercase flex items-center gap-3">
-                <span className="w-3 h-3 bg-primary rounded-full animate-pulse" />
-                Live Matches
+                <span className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse" />
+                Live Clashes
               </h2>
             </div>
             <div className="grid gap-6 md:grid-cols-2">
-              {liveMatches.map((match, idx) => (
-                <LiveMatchCard key={match.id} match={match} delay={idx * 0.1} />
+              {liveClashes.map((clash, idx) => (
+                <Link key={clash.id} to={`/clashes/${clash.id}`} data-testid={`live-clash-${clash.id}`}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: idx * 0.1 }}
+                    whileHover={{ y: -4 }}
+                  >
+                    <Card className="rounded-xl border-2 border-yellow-500/50 bg-card backdrop-blur-sm hover:border-yellow-500 transition-all duration-300 cursor-pointer" style={{ boxShadow: '0 0 20px -5px rgba(234, 179, 8, 0.5)' }}>
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-center mb-4">
+                          <span className="px-4 py-1 bg-yellow-500 text-black font-mono font-bold text-xs uppercase rounded-full animate-pulse">
+                            • LIVE
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <div className="text-center">
+                            <p className="font-bold text-lg text-foreground mb-1">{clash.clash_name.split(' vs ')[0]}</p>
+                            <p className="font-mono font-black text-3xl text-yellow-500 mt-2">{clash.team1_games_won}</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="font-mono text-xs text-muted-foreground">VS</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="font-bold text-lg text-foreground mb-1">{clash.clash_name.split(' vs ')[1]}</p>
+                            <p className="font-mono font-black text-3xl text-yellow-500 mt-2">{clash.team2_games_won}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                </Link>
               ))}
             </div>
           </motion.div>
@@ -115,34 +145,34 @@ export default function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.3 }}
           >
-            <Card className="rounded-xl border border-white/10 bg-card/50 backdrop-blur-sm hover:border-primary/50 transition-all duration-300 h-full">
+            <Card className="rounded-xl border border-white/10 bg-card/50 backdrop-blur-sm hover:border-yellow-500/50 transition-all duration-300 h-full">
               <CardHeader>
                 <CardTitle className="font-heading font-bold text-xl tracking-tight uppercase flex items-center">
-                  <Calendar className="mr-2 h-5 w-5 text-primary" />
+                  <Calendar className="mr-2 h-5 w-5 text-yellow-500" />
                   Upcoming Clashes
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {upcomingMatches.length > 0 ? (
-                  upcomingMatches.map((match) => (
-                    <Link key={match.id} to={`/matches/${match.id}`} data-testid={`upcoming-match-${match.id}`}>
-                      <div className="p-4 bg-secondary/50 rounded-lg hover:bg-secondary transition-colors cursor-pointer border border-transparent hover:border-primary/30">
-                        <p className="font-mono text-xs text-muted-foreground mb-1">{match.stage.toUpperCase()}</p>
-                        <p className="font-bold text-foreground">{match.clash_name}</p>
-                        {match.scheduled_time && (
+                {upcomingClashes.length > 0 ? (
+                  upcomingClashes.map((clash) => (
+                    <Link key={clash.id} to={`/clashes/${clash.id}`} data-testid={`upcoming-clash-${clash.id}`}>
+                      <div className="p-4 bg-secondary/50 rounded-lg hover:bg-secondary transition-colors cursor-pointer border border-transparent hover:border-yellow-500/30">
+                        <p className="font-mono text-xs text-muted-foreground mb-1">{clash.stage.toUpperCase()}</p>
+                        <p className="font-bold text-foreground">{clash.clash_name}</p>
+                        {clash.scheduled_time && (
                           <p className="text-sm text-muted-foreground mt-1">
-                            {new Date(match.scheduled_time).toLocaleString()}
+                            {new Date(clash.scheduled_time).toLocaleString()}
                           </p>
                         )}
                       </div>
                     </Link>
                   ))
                 ) : (
-                  <p className="text-muted-foreground text-center py-8">No upcoming matches</p>
+                  <p className="text-muted-foreground text-center py-8">No upcoming clashes</p>
                 )}
-                <Link to="/matches" data-testid="view-all-matches-link">
+                <Link to="/clashes" data-testid="view-all-clashes-link">
                   <Button variant="ghost" className="w-full font-bold uppercase tracking-wider">
-                    View All Matches <ArrowRight className="ml-2 h-4 w-4" />
+                    View All Clashes <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
               </CardContent>
@@ -154,10 +184,10 @@ export default function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.4 }}
           >
-            <Card className="rounded-xl border border-white/10 bg-card/50 backdrop-blur-sm hover:border-primary/50 transition-all duration-300 h-full">
+            <Card className="rounded-xl border border-white/10 bg-card/50 backdrop-blur-sm hover:border-yellow-500/50 transition-all duration-300 h-full">
               <CardHeader>
                 <CardTitle className="font-heading font-bold text-xl tracking-tight uppercase flex items-center">
-                  <Trophy className="mr-2 h-5 w-5 text-primary" />
+                  <Trophy className="mr-2 h-5 w-5 text-yellow-500" />
                   Top Teams
                 </CardTitle>
               </CardHeader>
@@ -166,14 +196,14 @@ export default function HomePage() {
                   topTeams.map((team, idx) => (
                     <div key={team.id} className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg" data-testid={`top-team-${idx}`}>
                       <div className="flex items-center gap-3">
-                        <span className="font-mono font-bold text-2xl text-primary w-8">#{idx + 1}</span>
+                        <span className="font-mono font-bold text-2xl text-yellow-500 w-8">#{idx + 1}</span>
                         <div>
                           <p className="font-bold text-foreground">{team.name}</p>
-                          <p className="text-xs text-muted-foreground">{team.block}</p>
+                          <p className="text-xs text-muted-foreground">{team.pool}{team.pool_number}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-mono font-bold text-xl text-primary">{team.points}</p>
+                        <p className="font-mono font-bold text-xl text-yellow-500">{team.points}</p>
                         <p className="text-xs text-muted-foreground">points</p>
                       </div>
                     </div>
@@ -200,13 +230,13 @@ export default function HomePage() {
             <Card className="rounded-xl border border-white/10 bg-card/50 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="font-heading font-bold text-xl tracking-tight uppercase flex items-center">
-                  <Zap className="mr-2 h-5 w-5 text-primary" />
+                  <Zap className="mr-2 h-5 w-5 text-yellow-500" />
                   Latest Updates
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {notifications.map((notif) => (
-                  <div key={notif.id} className="p-4 bg-secondary/30 rounded-lg border-l-4 border-primary" data-testid={`notification-${notif.id}`}>
+                  <div key={notif.id} className="p-4 bg-secondary/30 rounded-lg border-l-4 border-yellow-500" data-testid={`notification-${notif.id}`}>
                     <p className="font-bold text-foreground">{notif.title}</p>
                     <p className="text-sm text-muted-foreground mt-1">{notif.message}</p>
                     <p className="text-xs text-muted-foreground mt-2 font-mono">
@@ -220,63 +250,5 @@ export default function HomePage() {
         )}
       </div>
     </div>
-  );
-}
-
-function LiveMatchCard({ match, delay }) {
-  const [teams, setTeams] = useState({ team1: null, team2: null });
-  
-  useEffect(() => {
-    const fetchTeams = async () => {
-      try {
-        const [team1Res, team2Res] = await Promise.all([
-          axios.get(`${API}/teams/${match.team1_id}`),
-          axios.get(`${API}/teams/${match.team2_id}`)
-        ]);
-        setTeams({ team1: team1Res.data, team2: team2Res.data });
-      } catch (error) {
-        console.error('Error fetching teams:', error);
-      }
-    };
-    fetchTeams();
-  }, [match]);
-  
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay }}
-      whileHover={{ y: -4 }}
-    >
-      <Link to={`/matches/${match.id}`} data-testid={`live-match-${match.id}`}>
-        <Card className="rounded-xl border-2 border-primary/50 bg-card backdrop-blur-sm hover:border-primary transition-all duration-300 glow-primary cursor-pointer">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-center mb-4">
-              <span className="px-4 py-1 bg-primary text-primary-foreground font-mono font-bold text-xs uppercase rounded-full animate-pulse">
-                • LIVE
-              </span>
-            </div>
-            <div className="grid grid-cols-3 gap-4 items-center">
-              <div className="text-center">
-                <p className="font-bold text-lg text-foreground mb-1">{teams.team1?.name || 'Loading...'}</p>
-                <p className="text-xs text-muted-foreground">{teams.team1?.block}</p>
-                <p className="font-mono font-black text-3xl text-primary mt-2">{match.team1_total_points}</p>
-              </div>
-              <div className="text-center">
-                <p className="font-mono text-xs text-muted-foreground">VS</p>
-              </div>
-              <div className="text-center">
-                <p className="font-bold text-lg text-foreground mb-1">{teams.team2?.name || 'Loading...'}</p>
-                <p className="text-xs text-muted-foreground">{teams.team2?.block}</p>
-                <p className="font-mono font-black text-3xl text-primary mt-2">{match.team2_total_points}</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-4 border-t border-border">
-              <p className="text-center text-sm text-muted-foreground font-mono">{match.clash_name}</p>
-            </div>
-          </CardContent>
-        </Card>
-      </Link>
-    </motion.div>
   );
 }
