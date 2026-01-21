@@ -18,7 +18,7 @@ module.exports = {
           foreground: '#fafafa',
         },
         primary: {
-          DEFAULT: '#ccff00',
+          DEFAULT: '#00ff00',
           foreground: '#000000',
         },
         secondary: {
@@ -30,7 +30,7 @@ module.exports = {
           foreground: '#a1a1aa',
         },
         accent: {
-          DEFAULT: '#ccff00',
+          DEFAULT: '#00ff00',
           foreground: '#000000',
         },
         destructive: {
@@ -39,7 +39,7 @@ module.exports = {
         },
         border: '#27272a',
         input: '#27272a',
-        ring: '#ccff00',
+        ring: '#00ff00',
       },
       fontFamily: {
         heading: ['Unbounded', 'sans-serif'],
