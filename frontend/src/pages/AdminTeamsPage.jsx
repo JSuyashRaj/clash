@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Plus, Edit, Trash2, UserPlus, X, Zap } from 'lucide-react';
+import { Plus, Edit, Trash2, UserPlus, X, Zap, Pencil } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
@@ -21,6 +21,7 @@ export default function AdminTeamsPage() {
   const [showPlayerDialog, setShowPlayerDialog] = useState(false);
   const [showFixtureDialog, setShowFixtureDialog] = useState(false);
   const [editingTeam, setEditingTeam] = useState(null);
+  const [editingPlayer, setEditingPlayer] = useState(null);
   const [selectedTeamForPlayer, setSelectedTeamForPlayer] = useState(null);
   const [teamForm, setTeamForm] = useState({ name: '', pool: 'X', pool_number: 1 });
   const [playerForm, setPlayerForm] = useState({ name: '', team_id: '' });
@@ -114,11 +115,27 @@ export default function AdminTeamsPage() {
       toast.success('Player added successfully!');
       setShowPlayerDialog(false);
       setSelectedTeamForPlayer(null);
+      setEditingPlayer(null);
       setPlayerForm({ name: '', team_id: '' });
       fetchData();
     } catch (error) {
       console.error('Error creating player:', error);
       toast.error('Failed to add player');
+    }
+  };
+  
+  const handleUpdatePlayer = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.put(`${API}/players/${editingPlayer.id}`, playerForm);
+      toast.success('Player updated successfully!');
+      setShowPlayerDialog(false);
+      setEditingPlayer(null);
+      setPlayerForm({ name: '', team_id: '' });
+      fetchData();
+    } catch (error) {
+      console.error('Error updating player:', error);
+      toast.error('Failed to update player');
     }
   };
   
@@ -133,6 +150,12 @@ export default function AdminTeamsPage() {
       console.error('Error deleting player:', error);
       toast.error('Failed to remove player');
     }
+  };
+  
+  const openEditPlayerDialog = (player) => {
+    setEditingPlayer(player);
+    setPlayerForm({ name: player.name, team_id: player.team_id });
+    setShowPlayerDialog(true);
   };
   
   const handleGenerateFixtures = async () => {
