@@ -136,6 +136,11 @@ async def admin_login(data: AdminLogin):
 
 @api_router.post("/teams", response_model=Team)
 async def create_team(team: TeamCreate):
+    # Check for duplicate pool+pool_number
+    existing = await db.teams.find_one({"pool": team.pool, "pool_number": team.pool_number}, {"_id": 0})
+    if existing:
+        raise HTTPException(status_code=400, detail=f"Team {team.pool}{team.pool_number} already exists")
+    
     team_obj = Team(**team.model_dump())
     doc = team_obj.model_dump()
     await db.teams.insert_one(doc)
