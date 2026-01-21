@@ -419,15 +419,26 @@ export default function AdminTeamsPage() {
                                 <span className="text-sm text-foreground">{player.name}</span>
                                 <span className="text-xs text-muted-foreground ml-2">({player.matches_played}/2 matches)</span>
                               </div>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleDeletePlayer(player.id, player.name)}
-                                className="h-6 w-6 p-0 text-destructive hover:text-destructive hover:bg-destructive/20"
-                                data-testid={`delete-player-${player.id}`}
-                              >
-                                <X className="h-3 w-3" />
-                              </Button>
+                              <div className="flex gap-1">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => openEditPlayerDialog(player)}
+                                  className="h-6 w-6 p-0 text-muted-foreground hover:text-primary hover:bg-primary/20"
+                                  data-testid={`edit-player-${player.id}`}
+                                >
+                                  <Pencil className="h-3 w-3" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => handleDeletePlayer(player.id, player.name)}
+                                  className="h-6 w-6 p-0 text-destructive hover:text-destructive hover:bg-destructive/20"
+                                  data-testid={`delete-player-${player.id}`}
+                                >
+                                  <X className="h-3 w-3" />
+                                </Button>
+                              </div>
                             </div>
                           ))}
                         </div>
