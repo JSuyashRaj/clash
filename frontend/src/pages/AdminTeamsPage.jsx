@@ -176,7 +176,11 @@ export default function AdminTeamsPage() {
   
   const openEditTeamDialog = (team) => {
     setEditingTeam(team);
-    setTeamForm({ name: team.name, pool: team.pool, pool_number: team.pool_number });
+    setTeamForm({ 
+      name: team.name, 
+      pool: team.pool || 'X', 
+      pool_number: team.pool_number || 1 
+    });
     setShowTeamDialog(true);
   };
   
