@@ -104,7 +104,7 @@ export default function ClashesPage() {
                                 ? 'border-red-500/50 bg-gradient-to-br from-red-950/30 to-card/50' 
                                 : 'border-primary/50 bg-card/50' 
                               : 'border-white/10 bg-card/50 hover:border-primary/50'
-                          }`} style={clash.status === 'live' ? { boxShadow: knockout ? '0 0 20px -5px rgba(239, 68, 68, 0.5)' : '0 0 20px -5px rgba(234, 179, 8, 0.5)' } : {}}>
+                          }`} style={clash.status === 'live' ? { boxShadow: knockout ? '0 0 20px -5px rgba(239, 68, 68, 0.5)' : '0 0 20px -5px rgba(204, 255, 0, 0.5)' } : {}}>
                             <CardContent className="p-6">
                               <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-2">

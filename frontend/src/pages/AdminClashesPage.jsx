@@ -350,7 +350,7 @@ export default function AdminClashesPage() {
               
               <Dialog open={showClashDialog} onOpenChange={setShowClashDialog}>
                 <DialogTrigger asChild>
-                  <Button className="font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400" style={{ boxShadow: '0 0 20px -5px rgba(234, 179, 8, 0.5)' }} data-testid="add-clash-btn">
+                  <Button className="font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400" style={{ boxShadow: '0 0 20px -5px rgba(204, 255, 0, 0.5)' }} data-testid="add-clash-btn">
                     <Plus className="mr-2 h-4 w-4" /> Add Clash
                   </Button>
                 </DialogTrigger>

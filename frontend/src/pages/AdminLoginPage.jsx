@@ -44,7 +44,7 @@ export default function AdminLoginPage() {
       >
         <Card className="rounded-xl border border-white/10 bg-card/80 backdrop-blur-sm">
           <CardHeader className="text-center">
-            <div className="mx-auto bg-primary rounded-full p-4 w-fit mb-4" style={{ boxShadow: '0 0 20px -5px rgba(234, 179, 8, 0.5)' }}>
+            <div className="mx-auto bg-primary rounded-full p-4 w-fit mb-4" style={{ boxShadow: '0 0 20px -5px rgba(204, 255, 0, 0.5)' }}>
               <Shield className="h-8 w-8 text-black" />
             </div>
             <CardTitle className="font-heading font-bold text-3xl tracking-tight uppercase">
@@ -78,7 +78,7 @@ export default function AdminLoginPage() {
                 type="submit"
                 disabled={loading}
                 className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400"
-                style={{ boxShadow: '0 0 20px -5px rgba(234, 179, 8, 0.5)' }}
+                style={{ boxShadow: '0 0 20px -5px rgba(204, 255, 0, 0.5)' }}
                 data-testid="admin-login-submit"
               >
                 {loading ? 'Logging in...' : 'Access Admin Panel'}

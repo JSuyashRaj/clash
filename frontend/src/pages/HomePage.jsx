@@ -52,7 +52,7 @@ export default function HomePage() {
         }}
       >
         <div className="absolute inset-0" style={{
-          background: 'radial-gradient(circle at 50% 50%, rgba(234, 179, 8, 0.15) 0%, rgba(9, 9, 11, 0) 70%)'
+          background: 'radial-gradient(circle at 50% 50%, rgba(204, 255, 0, 0.15) 0%, rgba(9, 9, 11, 0) 70%)'
         }} />
         
         <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
@@ -71,7 +71,7 @@ export default function HomePage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/clashes" data-testid="view-clashes-btn">
-                <Button size="lg" className="font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400" style={{ boxShadow: '0 0 20px -5px rgba(234, 179, 8, 0.5)' }}>
+                <Button size="lg" className="font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400" style={{ boxShadow: '0 0 20px -5px rgba(204, 255, 0, 0.5)' }}>
                   <Zap className="mr-2 h-5 w-5" />
                   View Live Clashes
                 </Button>
@@ -110,7 +110,7 @@ export default function HomePage() {
                     transition={{ duration: 0.4, delay: idx * 0.1 }}
                     whileHover={{ y: -4 }}
                   >
-                    <Card className="rounded-xl border-2 border-primary/50 bg-card backdrop-blur-sm hover:border-primary transition-all duration-300 cursor-pointer" style={{ boxShadow: '0 0 20px -5px rgba(234, 179, 8, 0.5)' }}>
+                    <Card className="rounded-xl border-2 border-primary/50 bg-card backdrop-blur-sm hover:border-primary transition-all duration-300 cursor-pointer" style={{ boxShadow: '0 0 20px -5px rgba(204, 255, 0, 0.5)' }}>
                       <CardContent className="p-6">
                         <div className="flex items-center justify-center mb-4">
                           <span className="px-4 py-1 bg-primary text-black font-mono font-bold text-xs uppercase rounded-full animate-pulse">

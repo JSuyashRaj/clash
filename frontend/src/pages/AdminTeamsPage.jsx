@@ -235,7 +235,7 @@ export default function AdminTeamsPage() {
                 <DialogTrigger asChild>
                   <Button
                     className="font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400"
-                    style={{ boxShadow: '0 0 20px -5px rgba(234, 179, 8, 0.5)' }}
+                    style={{ boxShadow: '0 0 20px -5px rgba(204, 255, 0, 0.5)' }}
                     onClick={() => {
                       setEditingTeam(null);
                       setTeamForm({ name: '', pool: 'X', pool_number: 1 });
