@@ -42,8 +42,8 @@ class Team(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
-    pool: str
-    pool_number: int
+    pool: Optional[str] = "X"
+    pool_number: Optional[int] = 1
     players: List[str] = Field(default_factory=list)
     matches_played: int = 0
     matches_won: int = 0
