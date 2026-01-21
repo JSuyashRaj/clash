@@ -3,13 +3,13 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import HomePage from './pages/HomePage';
 import TeamsPage from './pages/TeamsPage';
-import MatchesPage from './pages/MatchesPage';
+import ClashesPage from './pages/ClashesPage';
 import LeaderboardPage from './pages/LeaderboardPage';
-import MatchDetailPage from './pages/MatchDetailPage';
+import ClashDetailPage from './pages/ClashDetailPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminTeamsPage from './pages/AdminTeamsPage';
-import AdminMatchesPage from './pages/AdminMatchesPage';
+import AdminClashesPage from './pages/AdminClashesPage';
 import Layout from './components/Layout';
 import './App.css';
 
@@ -22,13 +22,13 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<HomePage />} />
             <Route path="teams" element={<TeamsPage />} />
-            <Route path="matches" element={<MatchesPage />} />
-            <Route path="matches/:id" element={<MatchDetailPage />} />
+            <Route path="clashes" element={<ClashesPage />} />
+            <Route path="clashes/:id" element={<ClashDetailPage />} />
             <Route path="leaderboard" element={<LeaderboardPage />} />
             <Route path="admin/login" element={<AdminLoginPage />} />
             <Route path="admin/dashboard" element={<AdminDashboard />} />
             <Route path="admin/teams" element={<AdminTeamsPage />} />
-            <Route path="admin/matches" element={<AdminMatchesPage />} />
+            <Route path="admin/clashes" element={<AdminClashesPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
