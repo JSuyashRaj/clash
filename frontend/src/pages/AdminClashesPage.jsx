@@ -740,15 +740,15 @@ export default function AdminClashesPage() {
                             </p>
                             <div className="grid grid-cols-2 gap-2">
                               <Select 
-                                value={score.team2_player1_id || ''} 
-                                onValueChange={(val) => handlePlayerSelect(idx, 'team2_player1_id', val)}
+                                value={score.team2_player1_id || 'none'} 
+                                onValueChange={(val) => handlePlayerSelect(idx, 'team2_player1_id', val === 'none' ? null : val)}
                                 disabled={clashAlreadyWon && !isGameComplete}
                               >
                                 <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent h-9 text-xs">
                                   <SelectValue placeholder="Player 1" />
                                 </SelectTrigger>
                                 <SelectContent className="bg-card border border-white/10">
-                                  <SelectItem value="">-- Select --</SelectItem>
+                                  <SelectItem value="none">-- Select --</SelectItem>
                                   {team2Players.map(player => {
                                     const gameCount = getPlayerGameCount(player.id, idx);
                                     const isEligible = gameCount < 2 && canSelectPlayer(player.id, idx, 2, 1);
@@ -766,15 +766,15 @@ export default function AdminClashesPage() {
                                 </SelectContent>
                               </Select>
                               <Select 
-                                value={score.team2_player2_id || ''} 
-                                onValueChange={(val) => handlePlayerSelect(idx, 'team2_player2_id', val)}
+                                value={score.team2_player2_id || 'none'} 
+                                onValueChange={(val) => handlePlayerSelect(idx, 'team2_player2_id', val === 'none' ? null : val)}
                                 disabled={clashAlreadyWon && !isGameComplete}
                               >
                                 <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent h-9 text-xs">
                                   <SelectValue placeholder="Player 2" />
                                 </SelectTrigger>
                                 <SelectContent className="bg-card border border-white/10">
-                                  <SelectItem value="">-- Select --</SelectItem>
+                                  <SelectItem value="none">-- Select --</SelectItem>
                                   {team2Players.map(player => {
                                     const gameCount = getPlayerGameCount(player.id, idx);
                                     const isEligible = gameCount < 2 && canSelectPlayer(player.id, idx, 2, 2);
