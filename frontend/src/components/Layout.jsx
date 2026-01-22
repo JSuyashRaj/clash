@@ -106,7 +106,7 @@ export const Layout = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center text-muted-foreground text-sm">
             <p className="font-mono">© 2026 Clash of Shuttles Tournament</p>
-            <p className="mt-1">14 Teams • 2 Pools • 28 League Clashes</p>
+            <p className="mt-1">14 Teams • 2 Pools • 56 League Clashes</p>
           </div>
         </div>
       </footer>
