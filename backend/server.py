@@ -496,6 +496,33 @@ async def get_leaderboard(pool: Optional[str] = None):
     
     return sorted_teams
 
+@api_router.get("/pool-status/{pool}")
+async def get_pool_status(pool: str):
+    """Check if all matches in a pool are completed"""
+    # Get all teams in this pool
+    teams = await db.teams.find({"pool": pool}, {"_id": 0, "id": 1}).to_list(100)
+    team_ids = [t["id"] for t in teams]
+    
+    if len(team_ids) == 0:
+        return {"pool": pool, "total_clashes": 0, "completed_clashes": 0, "is_complete": False}
+    
+    # Get all league clashes for this pool (both teams must be from this pool)
+    all_clashes = await db.clashes.find({
+        "stage": "league",
+        "team1_id": {"$in": team_ids},
+        "team2_id": {"$in": team_ids}
+    }, {"_id": 0}).to_list(1000)
+    
+    total_clashes = len(all_clashes)
+    completed_clashes = len([c for c in all_clashes if c.get("is_locked", False)])
+    
+    return {
+        "pool": pool,
+        "total_clashes": total_clashes,
+        "completed_clashes": completed_clashes,
+        "is_complete": total_clashes > 0 and completed_clashes == total_clashes
+    }
+
 @api_router.post("/notifications", response_model=Notification)
 async def create_notification(notification: NotificationCreate):
     notif_obj = Notification(**notification.model_dump())
