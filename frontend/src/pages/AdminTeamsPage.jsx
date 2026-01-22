@@ -159,7 +159,7 @@ export default function AdminTeamsPage() {
   };
   
   const handleGenerateFixtures = async () => {
-    if (!window.confirm('Generate all league stage fixtures? This will create 28 clashes based on the circular format.')) return;
+    if (!window.confirm('Generate all league stage fixtures? This will create 56 clashes based on the circular format.')) return;
     
     setGeneratingFixtures(true);
     try {
@@ -213,7 +213,7 @@ export default function AdminTeamsPage() {
                 Manage <span className="text-primary">Teams</span>
               </h1>
               <p className="text-lg text-muted-foreground font-medium">
-                14 teams • 2 pools • Each team plays 4 clashes
+                14 teams • 2 pools • 56 league clashes
               </p>
             </div>
             <div className="flex gap-2">
@@ -238,8 +238,8 @@ export default function AdminTeamsPage() {
                       <p className="text-sm text-foreground font-bold">Fixture Structure:</p>
                       <ul className="text-sm text-muted-foreground space-y-1 ml-4">
                         <li>• Each team plays exactly 4 clashes</li>
-                        <li>• 14 clashes per pool (Pool X & Pool Y)</li>
-                        <li>• Total: 28 league stage clashes</li>
+                        <li>• 28 clashes per pool (Pool X & Pool Y)</li>
+                        <li>• Total: 56 league stage clashes</li>
                         <li>• Circular format as per tournament rules</li>
                       </ul>
                     </div>
