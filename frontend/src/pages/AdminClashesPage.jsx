@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Plus, Edit, Trash2, Upload, Bell, Lock, Clock } from 'lucide-react';
+import { Plus, Edit, Trash2, Bell, Lock, Clock, Trophy, CheckCircle } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent } from '../components/ui/card';
@@ -31,7 +31,6 @@ export default function AdminClashesPage() {
     scheduled_time: ''
   });
   const [scoreForm, setScoreForm] = useState({ scores: [], status: 'upcoming', start_time: '', end_time: '' });
-  const [photoFile, setPhotoFile] = useState(null);
   const [notifForm, setNotifForm] = useState({ title: '', message: '', clash_id: '' });
   
   useEffect(() => {
@@ -64,7 +63,7 @@ export default function AdminClashesPage() {
       await axios.post(`${API}/clashes`, clashForm);
       toast.success('Clash created successfully!');
       setShowClashDialog(false);
-      setClashForm({ clash_name: '', team1_id: '', team2_id: '', stage: 'knockout', scheduled_time: '' });
+      setClashForm({ clash_name: '', team1_id: '', team2_id: '', stage: 'league', scheduled_time: '' });
       fetchData();
     } catch (error) {
       console.error('Error creating clash:', error);
@@ -100,36 +99,63 @@ export default function AdminClashesPage() {
     return players.filter(p => p.team_id === teamId);
   };
   
-  const isPlayerEligible = (playerId, currentMatchIdx, teamId) => {
-    const player = players.find(p => p.id === playerId);
-    if (!player) return false;
-    
-    if (player.matches_played >= 2) return false;
-    
-    let usedInCurrentClash = 0;
-    scoreForm.scores.forEach((score, idx) => {
-      if (idx !== currentMatchIdx && score.completed) {
-        if (score.team1_player1_id === playerId || score.team1_player2_id === playerId ||
-            score.team2_player1_id === playerId || score.team2_player2_id === playerId) {
-          usedInCurrentClash++;
-        }
-      }
-    });
-    
-    return usedInCurrentClash === 0;
+  const getTeamName = (teamId) => {
+    return teams.find(t => t.id === teamId)?.name || 'Unknown';
   };
   
-  const isPairValid = (player1Id, player2Id) => {
-    if (!player1Id || !player2Id) return true;
+  const getTeamCode = (teamId) => {
+    const team = teams.find(t => t.id === teamId);
+    return team ? `${team.pool}${team.pool_number}` : '';
+  };
+  
+  // Check if a game is won (21 points, or up to 25 in deuce)
+  const getGameWinner = (team1Score, team2Score) => {
+    const score1 = parseInt(team1Score) || 0;
+    const score2 = parseInt(team2Score) || 0;
     
-    const player1 = players.find(p => p.id === player1Id);
-    const player2 = players.find(p => p.id === player2Id);
+    // Regular win at 21
+    if (score1 >= 21 && score1 - score2 >= 2) return 'team1';
+    if (score2 >= 21 && score2 - score1 >= 2) return 'team2';
     
-    if (!player1 || !player2) return true;
+    // Deuce win at 25 (cap)
+    if (score1 === 25 && score1 > score2) return 'team1';
+    if (score2 === 25 && score2 > score1) return 'team2';
     
-    const pairKey = [player1Id, player2Id].sort().join('-');
+    return null;
+  };
+  
+  // Calculate clash score from all games
+  const calculateClashScore = (scores) => {
+    let team1Wins = 0;
+    let team2Wins = 0;
     
-    return !player1.pairs_history.includes(pairKey) && !player2.pairs_history.includes(pairKey);
+    scores.forEach(score => {
+      const winner = getGameWinner(score.team1_set1, score.team2_set1);
+      if (winner === 'team1') team1Wins++;
+      if (winner === 'team2') team2Wins++;
+    });
+    
+    return { team1Wins, team2Wins };
+  };
+  
+  // Check if clash is finished (one team has 3 wins)
+  const isClashFinished = (scores) => {
+    const { team1Wins, team2Wins } = calculateClashScore(scores);
+    return team1Wins >= 3 || team2Wins >= 3;
+  };
+  
+  const updateScoreNumber = (matchIdx, field, value) => {
+    const updated = [...scoreForm.scores];
+    const numValue = parseInt(value) || 0;
+    // Cap at 25 for deuce
+    updated[matchIdx][field] = Math.min(Math.max(numValue, 0), 25);
+    setScoreForm({ ...scoreForm, scores: updated });
+  };
+  
+  const updateScoreField = (matchIdx, field, value) => {
+    const updated = [...scoreForm.scores];
+    updated[matchIdx][field] = value;
+    setScoreForm({ ...scoreForm, scores: updated });
   };
   
   const handleUpdateScore = async (e) => {
@@ -140,42 +166,35 @@ export default function AdminClashesPage() {
       return;
     }
     
-    for (let i = 0; i < scoreForm.scores.length; i++) {
-      const score = scoreForm.scores[i];
-      if (score.completed) {
-        if (!score.team1_player1_id || !score.team1_player2_id || !score.team2_player1_id || !score.team2_player2_id) {
-          toast.error(`Match ${i + 1}: All players must be selected`);
-          return;
-        }
-        
-        if (!isPairValid(score.team1_player1_id, score.team1_player2_id)) {
-          toast.error(`Match ${i + 1}: Team 1 pair has played together before`);
-          return;
-        }
-        
-        if (!isPairValid(score.team2_player1_id, score.team2_player2_id)) {
-          toast.error(`Match ${i + 1}: Team 2 pair has played together before`);
-          return;
-        }
-      }
-    }
+    const { team1Wins, team2Wins } = calculateClashScore(scoreForm.scores);
+    const clashFinished = team1Wins >= 3 || team2Wins >= 3;
+    
+    // Mark games as completed if they have a winner
+    const updatedScores = scoreForm.scores.map(score => {
+      const winner = getGameWinner(score.team1_set1, score.team2_set1);
+      return {
+        ...score,
+        completed: winner !== null,
+        winner: winner === 'team1' ? editingClash.team1_id : winner === 'team2' ? editingClash.team2_id : null
+      };
+    });
     
     try {
       const response = await axios.put(`${API}/clashes/${editingClash.id}/score`, {
         clash_id: editingClash.id,
-        scores: scoreForm.scores,
-        team1_games_won: 0,
-        team2_games_won: 0,
-        winner_id: null,
-        status: scoreForm.status,
+        scores: updatedScores,
+        team1_games_won: team1Wins,
+        team2_games_won: team2Wins,
+        winner_id: clashFinished ? (team1Wins >= 3 ? editingClash.team1_id : editingClash.team2_id) : null,
+        status: clashFinished ? 'completed' : 'live',
         start_time: scoreForm.start_time || null,
         end_time: scoreForm.end_time || null
       });
       
       if (response.data.is_locked) {
-        toast.success('Clash completed and locked!');
+        toast.success(`Clash completed! ${team1Wins >= 3 ? getTeamName(editingClash.team1_id) : getTeamName(editingClash.team2_id)} wins and gets 2 points!`);
       } else {
-        toast.success('Scores updated successfully!');
+        toast.success('Scores updated!');
       }
       
       setShowScoreDialog(false);
@@ -184,26 +203,6 @@ export default function AdminClashesPage() {
     } catch (error) {
       console.error('Error updating score:', error);
       toast.error(error.response?.data?.detail || 'Failed to update score');
-    }
-  };
-  
-  const handlePhotoUpload = async (e) => {
-    e.preventDefault();
-    if (!photoFile || !editingClash) return;
-    
-    const formData = new FormData();
-    formData.append('photo', photoFile);
-    
-    try {
-      await axios.put(`${API}/clashes/${editingClash.id}/photo`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      toast.success('Photo uploaded successfully!');
-      setPhotoFile(null);
-      fetchData();
-    } catch (error) {
-      console.error('Error uploading photo:', error);
-      toast.error('Failed to upload photo');
     }
   };
   
@@ -218,33 +217,6 @@ export default function AdminClashesPage() {
       console.error('Error sending notification:', error);
       toast.error('Failed to send notification');
     }
-  };
-  
-  const getTeamName = (teamId) => {
-    return teams.find(t => t.id === teamId)?.name || 'Unknown';
-  };
-  
-  const getTeamCode = (teamId) => {
-    const team = teams.find(t => t.id === teamId);
-    return team ? `${team.pool}${team.pool_number}` : '';
-  };
-  
-  const updateScoreField = (matchIdx, field, value) => {
-    const updated = [...scoreForm.scores];
-    updated[matchIdx][field] = value;
-    setScoreForm({ ...scoreForm, scores: updated });
-  };
-  
-  const updateScoreNumber = (matchIdx, field, value) => {
-    const updated = [...scoreForm.scores];
-    updated[matchIdx][field] = parseInt(value) || 0;
-    setScoreForm({ ...scoreForm, scores: updated });
-  };
-  
-  const toggleMatchCompleted = (matchIdx) => {
-    const updated = [...scoreForm.scores];
-    updated[matchIdx].completed = !updated[matchIdx].completed;
-    setScoreForm({ ...scoreForm, scores: updated });
   };
   
   const isKnockout = (stage) => {
@@ -278,12 +250,10 @@ export default function AdminClashesPage() {
     return `${mins}m`;
   };
   
-  const getMaxScore = (stage) => {
-    return isKnockout(stage) ? 11 : 21;
-  };
-  
-  const getDeuceMax = (stage) => {
-    return isKnockout(stage) ? 15 : 25;
+  // Get current clash score for display
+  const getCurrentClashScore = () => {
+    if (!scoreForm.scores) return { team1Wins: 0, team2Wins: 0 };
+    return calculateClashScore(scoreForm.scores);
   };
   
   return (
@@ -357,7 +327,7 @@ export default function AdminClashesPage() {
                 <DialogContent className="bg-card border border-white/10 sm:rounded-2xl">
                   <DialogHeader>
                     <DialogTitle className="font-heading font-bold text-2xl tracking-tight uppercase">
-                      Create Knockout Clash
+                      Create New Clash
                     </DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleCreateClash} className="space-y-4">
@@ -366,7 +336,7 @@ export default function AdminClashesPage() {
                       <Input
                         value={clashForm.clash_name}
                         onChange={(e) => setClashForm({ ...clashForm, clash_name: e.target.value })}
-                        placeholder="e.g., Semi Final 1"
+                        placeholder="e.g., X1 vs X2"
                         required
                         className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
                         data-testid="clash-name-input"
@@ -408,21 +378,10 @@ export default function AdminClashesPage() {
                         </SelectTrigger>
                         <SelectContent className="bg-card border border-white/10">
                           <SelectItem value="league">League Stage</SelectItem>
-                          <SelectItem value="knockout">Knockout</SelectItem>
                           <SelectItem value="semifinal">Semi Final</SelectItem>
                           <SelectItem value="final">Final</SelectItem>
                         </SelectContent>
                       </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Scheduled Time (Optional)</label>
-                      <Input
-                        type="datetime-local"
-                        value={clashForm.scheduled_time}
-                        onChange={(e) => setClashForm({ ...clashForm, scheduled_time: e.target.value })}
-                        className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
-                        data-testid="scheduled-time-input"
-                      />
                     </div>
                     <Button type="submit" className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400" data-testid="clash-submit-btn">
                       Create Clash
@@ -453,25 +412,16 @@ export default function AdminClashesPage() {
                           <h3 className="font-heading font-bold text-xl tracking-tight uppercase text-foreground">
                             {clash.clash_name}
                           </h3>
-                          {isKnockout(clash.stage) && (
-                            <span className="px-2 py-1 bg-red-500/20 border border-red-500/50 rounded text-xs font-bold text-red-400 uppercase">
-                              Royal
-                            </span>
-                          )}
                           {clash.is_locked && (
-                            <Lock className="h-4 w-4 text-muted-foreground" />
+                            <span className="flex items-center gap-1 px-2 py-1 bg-green-500/20 border border-green-500/50 rounded text-xs font-bold text-green-400 uppercase">
+                              <CheckCircle className="h-3 w-3" /> Completed
+                            </span>
                           )}
                         </div>
                         <p className="text-sm text-muted-foreground">
                           {clash.stage.toUpperCase()} - {clash.status}
                           {clash.duration_minutes && ` • ${formatDuration(clash.duration_minutes)}`}
                         </p>
-                        {clash.scheduled_time && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            <Clock className="inline h-3 w-3 mr-1" />
-                            {new Date(clash.scheduled_time).toLocaleString()}
-                          </p>
-                        )}
                       </div>
                       <div className="flex gap-2">
                         <Button
@@ -484,39 +434,6 @@ export default function AdminClashesPage() {
                         >
                           <Edit className="h-4 w-4 mr-1" /> {clash.is_locked ? 'Locked' : 'Score'}
                         </Button>
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => setEditingClash(clash)}
-                              className="border-2 font-bold uppercase text-xs"
-                              data-testid={`upload-photo-${clash.id}`}
-                            >
-                              <Upload className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="bg-card border border-white/10 sm:rounded-2xl">
-                            <DialogHeader>
-                              <DialogTitle className="font-heading font-bold text-2xl tracking-tight uppercase">
-                                Upload Clash Photo
-                              </DialogTitle>
-                            </DialogHeader>
-                            <form onSubmit={handlePhotoUpload} className="space-y-4">
-                              <Input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => setPhotoFile(e.target.files[0])}
-                                required
-                                className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
-                                data-testid="photo-input"
-                              />
-                              <Button type="submit" className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400" data-testid="photo-submit-btn">
-                                Upload Photo
-                              </Button>
-                            </form>
-                          </DialogContent>
-                        </Dialog>
                         <Button
                           size="sm"
                           variant="outline"
@@ -540,6 +457,7 @@ export default function AdminClashesPage() {
                           <span className="font-mono text-sm text-muted-foreground">-</span>
                           <span className={`font-mono font-black text-3xl ${theme.text}`}>{clash.team2_games_won}</span>
                         </div>
+                        <p className="text-xs text-muted-foreground mt-1">Best of 5</p>
                       </div>
                       <div className="text-right">
                         <p className="text-xs text-muted-foreground mb-1">{getTeamCode(clash.team2_id)}</p>
@@ -551,10 +469,17 @@ export default function AdminClashesPage() {
               </motion.div>
             );
           })}
+          
+          {clashes.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">No clashes yet. Click "Add Clash" to create one.</p>
+            </div>
+          )}
         </div>
         
+        {/* Score Entry Dialog */}
         <Dialog open={showScoreDialog} onOpenChange={setShowScoreDialog}>
-          <DialogContent className={`border sm:rounded-2xl max-w-6xl max-h-[90vh] overflow-y-auto ${
+          <DialogContent className={`border sm:rounded-2xl max-w-4xl max-h-[90vh] overflow-y-auto ${
             editingClash && isKnockout(editingClash.stage)
               ? 'bg-gradient-to-br from-red-950/50 to-card border-red-500/30'
               : 'bg-card border-white/10'
@@ -562,266 +487,147 @@ export default function AdminClashesPage() {
             <DialogHeader>
               <DialogTitle className="font-heading font-bold text-2xl tracking-tight uppercase">
                 Score Entry: {editingClash?.clash_name}
-                {editingClash && isKnockout(editingClash.stage) && (
-                  <span className="ml-3 px-3 py-1 bg-red-500/20 border border-red-500/50 rounded text-sm text-red-400">ROYAL</span>
-                )}
               </DialogTitle>
               {editingClash && (
-                <p className="text-sm text-muted-foreground">
-                  {getTeamCode(editingClash.team1_id)} {getTeamName(editingClash.team1_id)} vs {getTeamCode(editingClash.team2_id)} {getTeamName(editingClash.team2_id)}
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    {getTeamCode(editingClash.team1_id)} {getTeamName(editingClash.team1_id)} vs {getTeamCode(editingClash.team2_id)} {getTeamName(editingClash.team2_id)}
+                  </p>
+                </div>
               )}
             </DialogHeader>
+            
             {editingClash && (
               <form onSubmit={handleUpdateScore} className="space-y-6">
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Match Status</label>
-                    <Select value={scoreForm.status} onValueChange={(val) => setScoreForm({ ...scoreForm, status: val })}>
-                      <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12" data-testid="status-select">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-card border border-white/10">
-                        <SelectItem value="upcoming">Upcoming</SelectItem>
-                        <SelectItem value="live">Live</SelectItem>
-                        <SelectItem value="completed">Completed</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Start Time</label>
-                    <Input
-                      type="datetime-local"
-                      value={scoreForm.start_time}
-                      onChange={(e) => setScoreForm({ ...scoreForm, start_time: e.target.value })}
-                      className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
-                      data-testid="start-time-input"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-muted-foreground uppercase tracking-wide">End Time</label>
-                    <Input
-                      type="datetime-local"
-                      value={scoreForm.end_time}
-                      onChange={(e) => setScoreForm({ ...scoreForm, end_time: e.target.value })}
-                      className="rounded-lg bg-secondary/50 border-transparent focus:border-primary focus:ring-0 h-12"
-                      data-testid="end-time-input"
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  {scoreForm.scores.map((score, idx) => (
-                    <div key={idx} className={`border rounded-lg p-4 space-y-4 ${
-                      editingClash && isKnockout(editingClash.stage)
-                        ? 'border-red-500/30 bg-red-950/20'
-                        : 'border-primary/30 bg-primary/5'
-                    }`}>
-                      <div className="flex items-center justify-between">
-                        <span className={`font-mono font-bold text-sm px-3 py-1 rounded ${
-                          editingClash && isKnockout(editingClash.stage)
-                            ? 'bg-red-500 text-black'
-                            : 'bg-primary text-black'
-                        }`}>
-                          Match {idx + 1}
-                        </span>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={score.completed}
-                            onChange={() => toggleMatchCompleted(idx)}
-                            className="rounded"
-                          />
-                          <span className="text-sm font-bold text-muted-foreground">Completed</span>
-                        </label>
-                      </div>
-                      
-                      {score.completed && (
-                        <>
-                          <div className="grid grid-cols-2 gap-6">
-                            <div className="space-y-3">
-                              <p className="text-xs font-bold text-muted-foreground uppercase">{getTeamName(editingClash.team1_id)}</p>
-                              <div className="grid grid-cols-2 gap-2">
-                                <Select 
-                                  value={score.team1_player1_id || ''} 
-                                  onValueChange={(val) => updateScoreField(idx, 'team1_player1_id', val)}
-                                >
-                                  <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent h-10 text-xs">
-                                    <SelectValue placeholder="Player 1" />
-                                  </SelectTrigger>
-                                  <SelectContent className="bg-card border border-white/10">
-                                    {getTeamPlayers(editingClash.team1_id).map(player => (
-                                      <SelectItem 
-                                        key={player.id} 
-                                        value={player.id}
-                                        disabled={!isPlayerEligible(player.id, idx, editingClash.team1_id)}
-                                      >
-                                        {player.name} {!isPlayerEligible(player.id, idx, editingClash.team1_id) && '(ineligible)'}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <Select 
-                                  value={score.team1_player2_id || ''} 
-                                  onValueChange={(val) => updateScoreField(idx, 'team1_player2_id', val)}
-                                >
-                                  <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent h-10 text-xs">
-                                    <SelectValue placeholder="Player 2" />
-                                  </SelectTrigger>
-                                  <SelectContent className="bg-card border border-white/10">
-                                    {getTeamPlayers(editingClash.team1_id).map(player => (
-                                      <SelectItem 
-                                        key={player.id} 
-                                        value={player.id}
-                                        disabled={!isPlayerEligible(player.id, idx, editingClash.team1_id) || player.id === score.team1_player1_id}
-                                      >
-                                        {player.name} {(!isPlayerEligible(player.id, idx, editingClash.team1_id) || player.id === score.team1_player1_id) && '(ineligible)'}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              {score.team1_player1_id && score.team1_player2_id && !isPairValid(score.team1_player1_id, score.team1_player2_id) && (
-                                <p className="text-xs text-destructive">⚠️ This pair has played together before</p>
-                              )}
-                              <div className="flex gap-2">
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  max={getDeuceMax(editingClash.stage)}
-                                  value={score.team1_set1}
-                                  onChange={(e) => updateScoreNumber(idx, 'team1_set1', e.target.value)}
-                                  placeholder={`Set 1 (max ${getMaxScore(editingClash.stage)})`}
-                                  className="rounded-lg bg-secondary/50 border-transparent h-10 text-center"
-                                />
-                                {isKnockout(editingClash.stage) && (
-                                  <>
-                                    <Input
-                                      type="number"
-                                      min="0"
-                                      max={getDeuceMax(editingClash.stage)}
-                                      value={score.team1_set2}
-                                      onChange={(e) => updateScoreNumber(idx, 'team1_set2', e.target.value)}
-                                      placeholder="Set 2"
-                                      className="rounded-lg bg-secondary/50 border-transparent h-10 text-center"
-                                    />
-                                    <Input
-                                      type="number"
-                                      min="0"
-                                      max={getDeuceMax(editingClash.stage)}
-                                      value={score.team1_set3}
-                                      onChange={(e) => updateScoreNumber(idx, 'team1_set3', e.target.value)}
-                                      placeholder="Set 3"
-                                      className="rounded-lg bg-secondary/50 border-transparent h-10 text-center"
-                                    />
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                            
-                            <div className="space-y-3">
-                              <p className="text-xs font-bold text-muted-foreground uppercase">{getTeamName(editingClash.team2_id)}</p>
-                              <div className="grid grid-cols-2 gap-2">
-                                <Select 
-                                  value={score.team2_player1_id || ''} 
-                                  onValueChange={(val) => updateScoreField(idx, 'team2_player1_id', val)}
-                                >
-                                  <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent h-10 text-xs">
-                                    <SelectValue placeholder="Player 1" />
-                                  </SelectTrigger>
-                                  <SelectContent className="bg-card border border-white/10">
-                                    {getTeamPlayers(editingClash.team2_id).map(player => (
-                                      <SelectItem 
-                                        key={player.id} 
-                                        value={player.id}
-                                        disabled={!isPlayerEligible(player.id, idx, editingClash.team2_id)}
-                                      >
-                                        {player.name} {!isPlayerEligible(player.id, idx, editingClash.team2_id) && '(ineligible)'}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <Select 
-                                  value={score.team2_player2_id || ''} 
-                                  onValueChange={(val) => updateScoreField(idx, 'team2_player2_id', val)}
-                                >
-                                  <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent h-10 text-xs">
-                                    <SelectValue placeholder="Player 2" />
-                                  </SelectTrigger>
-                                  <SelectContent className="bg-card border border-white/10">
-                                    {getTeamPlayers(editingClash.team2_id).map(player => (
-                                      <SelectItem 
-                                        key={player.id} 
-                                        value={player.id}
-                                        disabled={!isPlayerEligible(player.id, idx, editingClash.team2_id) || player.id === score.team2_player1_id}
-                                      >
-                                        {player.name} {(!isPlayerEligible(player.id, idx, editingClash.team2_id) || player.id === score.team2_player1_id) && '(ineligible)'}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              {score.team2_player1_id && score.team2_player2_id && !isPairValid(score.team2_player1_id, score.team2_player2_id) && (
-                                <p className="text-xs text-destructive">⚠️ This pair has played together before</p>
-                              )}
-                              <div className="flex gap-2">
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  max={getDeuceMax(editingClash.stage)}
-                                  value={score.team2_set1}
-                                  onChange={(e) => updateScoreNumber(idx, 'team2_set1', e.target.value)}
-                                  placeholder={`Set 1 (max ${getMaxScore(editingClash.stage)})`}
-                                  className="rounded-lg bg-secondary/50 border-transparent h-10 text-center"
-                                />
-                                {isKnockout(editingClash.stage) && (
-                                  <>
-                                    <Input
-                                      type="number"
-                                      min="0"
-                                      max={getDeuceMax(editingClash.stage)}
-                                      value={score.team2_set2}
-                                      onChange={(e) => updateScoreNumber(idx, 'team2_set2', e.target.value)}
-                                      placeholder="Set 2"
-                                      className="rounded-lg bg-secondary/50 border-transparent h-10 text-center"
-                                    />
-                                    <Input
-                                      type="number"
-                                      min="0"
-                                      max={getDeuceMax(editingClash.stage)}
-                                      value={score.team2_set3}
-                                      onChange={(e) => updateScoreNumber(idx, 'team2_set3', e.target.value)}
-                                      placeholder="Set 3"
-                                      className="rounded-lg bg-secondary/50 border-transparent h-10 text-center"
-                                    />
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          <p className="text-xs text-muted-foreground text-center">
-                            {isKnockout(editingClash.stage) 
-                              ? `Best of 3 sets to 11 (deuce to 15)`
-                              : `1 game to 21 (deuce to 25)`
-                            }
-                          </p>
-                        </>
-                      )}
+                {/* Live Clash Score Display */}
+                <div className={`rounded-xl p-4 ${
+                  isKnockout(editingClash.stage) ? 'bg-red-500/10 border border-red-500/30' : 'bg-primary/10 border border-primary/30'
+                }`}>
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-2 text-center">Clash Score</p>
+                  <div className="flex items-center justify-center gap-6">
+                    <div className="text-center">
+                      <p className="text-sm font-bold text-muted-foreground">{getTeamName(editingClash.team1_id)}</p>
+                      <p className={`font-mono font-black text-4xl ${isKnockout(editingClash.stage) ? 'text-red-500' : 'text-primary'}`}>
+                        {getCurrentClashScore().team1Wins}
+                      </p>
                     </div>
-                  ))}
+                    <span className="text-2xl text-muted-foreground">-</span>
+                    <div className="text-center">
+                      <p className="text-sm font-bold text-muted-foreground">{getTeamName(editingClash.team2_id)}</p>
+                      <p className={`font-mono font-black text-4xl ${isKnockout(editingClash.stage) ? 'text-red-500' : 'text-primary'}`}>
+                        {getCurrentClashScore().team2Wins}
+                      </p>
+                    </div>
+                  </div>
+                  {isClashFinished(scoreForm.scores) && (
+                    <p className="text-center mt-2 text-green-400 font-bold text-sm flex items-center justify-center gap-2">
+                      <Trophy className="h-4 w-4" />
+                      {getCurrentClashScore().team1Wins >= 3 ? getTeamName(editingClash.team1_id) : getTeamName(editingClash.team2_id)} wins the clash!
+                    </p>
+                  )}
                 </div>
                 
-                <div className="bg-primary/10 border border-primary/30 rounded-lg p-4">
-                  <p className="text-sm font-bold text-primary mb-2">⚡ Auto-Stop Rules:</p>
-                  <ul className="text-xs text-muted-foreground space-y-1">
-                    <li>• When a team reaches 3 match wins, clash ends automatically</li>
-                    <li>• Remaining matches are disabled</li>
-                    <li>• Clash is locked from further edits</li>
-                  </ul>
+                {/* All 5 Games */}
+                <div className="space-y-3">
+                  <p className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Games (First to 21, deuce to 25)</p>
+                  
+                  {scoreForm.scores.map((score, idx) => {
+                    const gameWinner = getGameWinner(score.team1_set1, score.team2_set1);
+                    const isGameComplete = gameWinner !== null;
+                    const { team1Wins, team2Wins } = calculateClashScore(scoreForm.scores.slice(0, idx));
+                    const clashAlreadyWon = team1Wins >= 3 || team2Wins >= 3;
+                    
+                    return (
+                      <div 
+                        key={idx} 
+                        className={`border rounded-lg p-4 ${
+                          isGameComplete 
+                            ? 'border-green-500/30 bg-green-950/20' 
+                            : clashAlreadyWon
+                              ? 'border-muted/30 bg-muted/5 opacity-50'
+                              : isKnockout(editingClash.stage)
+                                ? 'border-red-500/30 bg-red-950/20'
+                                : 'border-primary/30 bg-primary/5'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <span className={`font-mono font-bold text-sm px-3 py-1 rounded ${
+                            isGameComplete
+                              ? 'bg-green-500 text-black'
+                              : isKnockout(editingClash.stage)
+                                ? 'bg-red-500 text-black'
+                                : 'bg-primary text-black'
+                          }`}>
+                            Game {idx + 1}
+                          </span>
+                          {isGameComplete && (
+                            <span className="text-xs font-bold text-green-400 flex items-center gap-1">
+                              <CheckCircle className="h-3 w-3" />
+                              {gameWinner === 'team1' ? getTeamName(editingClash.team1_id) : getTeamName(editingClash.team2_id)} wins
+                            </span>
+                          )}
+                          {clashAlreadyWon && !isGameComplete && (
+                            <span className="text-xs text-muted-foreground">Clash already decided</span>
+                          )}
+                        </div>
+                        
+                        <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-center">
+                          <div className="space-y-2">
+                            <p className="text-xs font-bold text-muted-foreground uppercase text-center">
+                              {getTeamName(editingClash.team1_id)}
+                            </p>
+                            <Input
+                              type="number"
+                              min="0"
+                              max="25"
+                              value={score.team1_set1 || ''}
+                              onChange={(e) => updateScoreNumber(idx, 'team1_set1', e.target.value)}
+                              disabled={clashAlreadyWon && !isGameComplete}
+                              className={`rounded-lg border-transparent h-14 text-center text-2xl font-mono font-bold ${
+                                gameWinner === 'team1' ? 'bg-green-500/20 text-green-400' : 'bg-secondary/50'
+                              }`}
+                              data-testid={`game-${idx + 1}-team1-score`}
+                            />
+                          </div>
+                          
+                          <div className="text-center">
+                            <span className="text-2xl text-muted-foreground font-bold">vs</span>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <p className="text-xs font-bold text-muted-foreground uppercase text-center">
+                              {getTeamName(editingClash.team2_id)}
+                            </p>
+                            <Input
+                              type="number"
+                              min="0"
+                              max="25"
+                              value={score.team2_set1 || ''}
+                              onChange={(e) => updateScoreNumber(idx, 'team2_set1', e.target.value)}
+                              disabled={clashAlreadyWon && !isGameComplete}
+                              className={`rounded-lg border-transparent h-14 text-center text-2xl font-mono font-bold ${
+                                gameWinner === 'team2' ? 'bg-green-500/20 text-green-400' : 'bg-secondary/50'
+                              }`}
+                              data-testid={`game-${idx + 1}-team2-score`}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
                 
-                <Button type="submit" className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400" data-testid="score-submit-btn">
-                  Update Scores
+                <div className="bg-secondary/30 rounded-lg p-3 text-xs text-muted-foreground">
+                  <p><strong>Scoring Rules:</strong> First to 21 wins the game. In case of 20-20 (deuce), play continues until one team leads by 2 points, max 25.</p>
+                  <p className="mt-1"><strong>Clash Win:</strong> First team to win 3 games wins the clash and gets 2 leaderboard points.</p>
+                </div>
+                
+                <Button 
+                  type="submit" 
+                  className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400" 
+                  data-testid="score-submit-btn"
+                >
+                  {isClashFinished(scoreForm.scores) ? 'Save & Complete Clash' : 'Save Scores'}
                 </Button>
               </form>
             )}
