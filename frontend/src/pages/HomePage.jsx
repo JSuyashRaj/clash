@@ -66,12 +66,12 @@ export default function HomePage() {
               <span className="text-primary"> 2026</span>
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground font-medium leading-relaxed mb-8">
-              14 Teams • 2 Pools • 28 League Clashes<br className="hidden sm:block" />
+              14 Teams • 2 Pools • 56 League Clashes<br className="hidden sm:block" />
               Where Blocks Collide. Where Legends Rise.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/clashes" data-testid="view-clashes-btn">
-                <Button size="lg" className="font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400" style={{ boxShadow: '0 0 20px -5px rgba(204, 255, 0, 0.5)' }}>
+                <Button size="lg" className="font-bold uppercase tracking-wider bg-primary text-black hover:bg-primary/80" style={{ boxShadow: '0 0 20px -5px rgba(204, 255, 0, 0.5)' }}>
                   <Zap className="mr-2 h-5 w-5" />
                   View Live Clashes
                 </Button>
