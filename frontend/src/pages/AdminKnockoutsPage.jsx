@@ -319,7 +319,7 @@ export default function AdminKnockoutsPage() {
                   <CheckCircle className="h-4 w-4" /> Complete
                 </span>
               ) : (
-                <span className="text-muted-foreground">{poolXStatus.completed_clashes}/{poolXStatus.total_clashes || 28}</span>
+                <span className="text-muted-foreground">{poolXStatus.completed_clashes}/28</span>
               )}
             </CardContent>
           </Card>
@@ -331,7 +331,7 @@ export default function AdminKnockoutsPage() {
                   <CheckCircle className="h-4 w-4" /> Complete
                 </span>
               ) : (
-                <span className="text-muted-foreground">{poolYStatus.completed_clashes}/{poolYStatus.total_clashes || 28}</span>
+                <span className="text-muted-foreground">{poolYStatus.completed_clashes}/28</span>
               )}
             </CardContent>
           </Card>

@@ -122,7 +122,7 @@ export default function KnockoutsPage() {
             ) : (
               <>
                 <p className="font-mono font-black text-2xl text-red-500">
-                  {poolXStatus.completed_clashes}/{poolXStatus.total_clashes || 28}
+                  {poolXStatus.completed_clashes}/28
                 </p>
                 <p className="text-xs text-muted-foreground">clashes done</p>
               </>
@@ -141,7 +141,7 @@ export default function KnockoutsPage() {
             ) : (
               <>
                 <p className="font-mono font-black text-2xl text-red-500">
-                  {poolYStatus.completed_clashes}/{poolYStatus.total_clashes || 28}
+                  {poolYStatus.completed_clashes}/28
                 </p>
                 <p className="text-xs text-muted-foreground">clashes done</p>
               </>
