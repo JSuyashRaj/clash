@@ -136,11 +136,6 @@ async def admin_login(data: AdminLogin):
 
 @api_router.post("/teams", response_model=Team)
 async def create_team(team: TeamCreate):
-    # Check for duplicate pool+pool_number
-    existing = await db.teams.find_one({"pool": team.pool, "pool_number": team.pool_number}, {"_id": 0})
-    if existing:
-        raise HTTPException(status_code=400, detail=f"Team {team.pool}{team.pool_number} already exists")
-    
     team_obj = Team(**team.model_dump())
     doc = team_obj.model_dump()
     await db.teams.insert_one(doc)
@@ -160,15 +155,6 @@ async def get_team(team_id: str):
 
 @api_router.put("/teams/{team_id}", response_model=Team)
 async def update_team(team_id: str, team: TeamCreate):
-    # Check if new pool+pool_number would conflict with another team
-    existing = await db.teams.find_one({
-        "pool": team.pool, 
-        "pool_number": team.pool_number,
-        "id": {"$ne": team_id}
-    }, {"_id": 0})
-    if existing:
-        raise HTTPException(status_code=400, detail=f"Team {team.pool}{team.pool_number} already exists")
-    
     result = await db.teams.update_one(
         {"id": team_id},
         {"$set": team.model_dump()}
