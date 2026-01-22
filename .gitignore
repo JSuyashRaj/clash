@@ -84,5 +84,3 @@ frontend/node_modules/.cache/default-development/0.pack
 # Note: .env files are needed for deployment
 -e 
 # Environment files
-*.env
-*.env.*
