@@ -846,6 +846,13 @@ export default function AdminClashesPage() {
                             />
                           </div>
                         </div>
+                        
+                        {/* Message when players not selected */}
+                        {!allPlayersSelected && !isGameComplete && !clashAlreadyWon && (
+                          <p className="text-xs text-amber-400 mt-2 text-center font-medium">
+                            ⚠️ Select all 4 players to enable scoring
+                          </p>
+                        )}
                       </div>
                     );
                   })}
