@@ -11,6 +11,7 @@ import AdminLoginPage from './pages/AdminLoginPage';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminTeamsPage from './pages/AdminTeamsPage';
 import AdminClashesPage from './pages/AdminClashesPage';
+import AdminKnockoutsPage from './pages/AdminKnockoutsPage';
 import Layout from './components/Layout';
 import './App.css';
 
@@ -31,6 +32,7 @@ function App() {
             <Route path="admin/dashboard" element={<AdminDashboard />} />
             <Route path="admin/teams" element={<AdminTeamsPage />} />
             <Route path="admin/clashes" element={<AdminClashesPage />} />
+            <Route path="admin/knockouts" element={<AdminKnockoutsPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
