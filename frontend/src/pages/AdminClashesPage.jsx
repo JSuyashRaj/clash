@@ -805,7 +805,7 @@ export default function AdminClashesPage() {
                         </div>
                         
                         {/* Score Entry */}
-                        <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-center">
+                        <div className={`grid grid-cols-[1fr_auto_1fr] gap-4 items-center ${!allPlayersSelected && !isGameComplete ? 'opacity-50' : ''}`}>
                           <div className="space-y-1">
                             <p className="text-xs font-bold text-muted-foreground uppercase text-center">
                               {getTeamName(editingClash.team1_id)}
@@ -816,7 +816,7 @@ export default function AdminClashesPage() {
                               max="25"
                               value={score.team1_set1 || ''}
                               onChange={(e) => updateScoreNumber(idx, 'team1_set1', e.target.value)}
-                              disabled={clashAlreadyWon && !isGameComplete}
+                              disabled={(clashAlreadyWon && !isGameComplete) || (!allPlayersSelected && !isGameComplete)}
                               className={`rounded-lg border-transparent h-14 text-center text-2xl font-mono font-bold ${
                                 gameWinner === 'team1' ? 'bg-green-500/20 text-green-400' : 'bg-secondary/50'
                               }`}
@@ -838,7 +838,7 @@ export default function AdminClashesPage() {
                               max="25"
                               value={score.team2_set1 || ''}
                               onChange={(e) => updateScoreNumber(idx, 'team2_set1', e.target.value)}
-                              disabled={clashAlreadyWon && !isGameComplete}
+                              disabled={(clashAlreadyWon && !isGameComplete) || (!allPlayersSelected && !isGameComplete)}
                               className={`rounded-lg border-transparent h-14 text-center text-2xl font-mono font-bold ${
                                 gameWinner === 'team2' ? 'bg-green-500/20 text-green-400' : 'bg-secondary/50'
                               }`}
