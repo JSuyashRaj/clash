@@ -523,6 +523,133 @@ async def get_pool_status(pool: str):
         "is_complete": total_clashes > 0 and completed_clashes == total_clashes
     }
 
+@api_router.post("/knockouts/generate-semifinals")
+async def generate_knockout_semifinals():
+    """Generate semi-final fixtures based on leaderboard standings"""
+    # Check if both pools are complete
+    for pool in ['X', 'Y']:
+        teams = await db.teams.find({"pool": pool}, {"_id": 0, "id": 1}).to_list(100)
+        team_ids = [t["id"] for t in teams]
+        if len(team_ids) == 0:
+            raise HTTPException(status_code=400, detail=f"No teams in pool {pool}")
+        
+        all_clashes = await db.clashes.find({
+            "stage": "league",
+            "team1_id": {"$in": team_ids},
+            "team2_id": {"$in": team_ids}
+        }, {"_id": 0}).to_list(1000)
+        
+        completed = len([c for c in all_clashes if c.get("is_locked", False)])
+        if len(all_clashes) == 0 or completed < len(all_clashes):
+            raise HTTPException(status_code=400, detail=f"Pool {pool} league stage not complete yet")
+    
+    # Check if semifinals already exist
+    existing_semis = await db.clashes.find({"stage": "semifinal"}, {"_id": 0}).to_list(10)
+    if len(existing_semis) >= 2:
+        raise HTTPException(status_code=400, detail="Semi-finals already generated")
+    
+    # Get leaderboard for both pools
+    pool_x_teams = await db.teams.find({"pool": "X"}, {"_id": 0}).to_list(100)
+    pool_y_teams = await db.teams.find({"pool": "Y"}, {"_id": 0}).to_list(100)
+    
+    # Sort by points, then fewer losses, then point difference
+    pool_x_sorted = sorted(pool_x_teams, key=lambda t: (
+        -t.get("points", 0),
+        t.get("matches_lost", 0),
+        -t.get("point_difference", 0)
+    ))
+    pool_y_sorted = sorted(pool_y_teams, key=lambda t: (
+        -t.get("points", 0),
+        t.get("matches_lost", 0),
+        -t.get("point_difference", 0)
+    ))
+    
+    if len(pool_x_sorted) < 2 or len(pool_y_sorted) < 2:
+        raise HTTPException(status_code=400, detail="Not enough teams in pools")
+    
+    x1, x2 = pool_x_sorted[0], pool_x_sorted[1]
+    y1, y2 = pool_y_sorted[0], pool_y_sorted[1]
+    
+    # Create Semi-Final 1: X1 vs Y2
+    sf1 = Clash(
+        clash_name=f"{x1['name']} vs {y2['name']}",
+        team1_id=x1['id'],
+        team2_id=y2['id'],
+        stage="semifinal",
+        status="upcoming"
+    )
+    
+    # Create Semi-Final 2: X2 vs Y1
+    sf2 = Clash(
+        clash_name=f"{x2['name']} vs {y1['name']}",
+        team1_id=x2['id'],
+        team2_id=y1['id'],
+        stage="semifinal",
+        status="upcoming"
+    )
+    
+    await db.clashes.insert_one(sf1.model_dump())
+    await db.clashes.insert_one(sf2.model_dump())
+    
+    return {"message": "Semi-finals generated successfully", "sf1": sf1.clash_name, "sf2": sf2.clash_name}
+
+@api_router.post("/knockouts/generate-finals")
+async def generate_knockout_finals():
+    """Generate final and third-place fixtures based on semi-final results"""
+    # Get semi-finals
+    semis = await db.clashes.find({"stage": "semifinal"}, {"_id": 0}).to_list(10)
+    if len(semis) < 2:
+        raise HTTPException(status_code=400, detail="Semi-finals not yet created")
+    
+    # Check if both semis are complete
+    for sf in semis:
+        if not sf.get("is_locked", False):
+            raise HTTPException(status_code=400, detail="Semi-finals not yet complete")
+    
+    # Check if finals already exist
+    existing_finals = await db.clashes.find({"stage": {"$in": ["final", "third_place"]}}, {"_id": 0}).to_list(10)
+    if len(existing_finals) >= 2:
+        raise HTTPException(status_code=400, detail="Finals already generated")
+    
+    # Get winners and losers
+    sf1, sf2 = semis[0], semis[1]
+    
+    sf1_winner = sf1.get("winner_id")
+    sf1_loser = sf1["team2_id"] if sf1_winner == sf1["team1_id"] else sf1["team1_id"]
+    
+    sf2_winner = sf2.get("winner_id")
+    sf2_loser = sf2["team2_id"] if sf2_winner == sf2["team1_id"] else sf2["team1_id"]
+    
+    if not sf1_winner or not sf2_winner:
+        raise HTTPException(status_code=400, detail="Semi-final winners not determined")
+    
+    # Get team names
+    teams = await db.teams.find({}, {"_id": 0}).to_list(100)
+    team_map = {t["id"]: t["name"] for t in teams}
+    
+    # Create Final: Winner SF1 vs Winner SF2
+    final = Clash(
+        clash_name=f"{team_map.get(sf1_winner, 'TBD')} vs {team_map.get(sf2_winner, 'TBD')}",
+        team1_id=sf1_winner,
+        team2_id=sf2_winner,
+        stage="final",
+        status="upcoming"
+    )
+    
+    # Create Third Place: Loser SF1 vs Loser SF2
+    third_place = Clash(
+        clash_name=f"{team_map.get(sf1_loser, 'TBD')} vs {team_map.get(sf2_loser, 'TBD')}",
+        team1_id=sf1_loser,
+        team2_id=sf2_loser,
+        stage="third_place",
+        status="upcoming"
+    )
+    
+    await db.clashes.insert_one(final.model_dump())
+    await db.clashes.insert_one(third_place.model_dump())
+    
+    return {"message": "Finals generated successfully", "final": final.clash_name, "third_place": third_place.clash_name}
+
 @api_router.post("/notifications", response_model=Notification)
 async def create_notification(notification: NotificationCreate):
     notif_obj = Notification(**notification.model_dump())
