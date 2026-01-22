@@ -23,7 +23,7 @@ db = client[os.environ['DB_NAME']]
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
-ADMIN_PASSWORD_HASH = "$2b$12$ahyYGx.T7QJPOQrSrVcyhOgiOIk9rhuGDKDAqE2h29fdWoNugYhLe"
+ADMIN_PASSWORD_HASH = "$2b$12$NogneEZ8/An7G7LvhaTgReLNC69DqZFh0zd8Cp9YK6mBWA5p.ZP66"
 
 class Player(BaseModel):
     model_config = ConfigDict(extra="ignore")
