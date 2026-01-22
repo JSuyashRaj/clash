@@ -183,7 +183,7 @@ export default function LeaderboardPage() {
     return (
       <div className="mt-6 p-4 bg-primary/10 border border-primary/30 rounded-lg">
         <p className="text-xs font-bold text-primary">
-          Pool {poolName}: {poolStatus.completed_clashes}/{poolStatus.total_clashes} clashes completed
+          Pool {poolName}: {poolStatus.completed_clashes}/28 clashes completed
         </p>
         <p className="text-xs text-muted-foreground mt-1">
           Top 2 teams will qualify for knockouts after all matches are completed
