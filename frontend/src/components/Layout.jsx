@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Trophy, Users, Calendar, Award, Shield } from 'lucide-react';
+import { Trophy, Users, Calendar, Award, Shield, Zap } from 'lucide-react';
 import { Button } from './ui/button';
 
 export const Layout = () => {
@@ -14,6 +14,7 @@ export const Layout = () => {
     { to: '/teams', label: 'Teams', icon: Users },
     { to: '/clashes', label: 'Clashes', icon: Calendar },
     { to: '/leaderboard', label: 'Leaderboard', icon: Award },
+    { to: '/knockouts', label: 'Knockouts', icon: Zap },
   ];
   
   const adminLinks = [
