@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage';
 import TeamsPage from './pages/TeamsPage';
 import ClashesPage from './pages/ClashesPage';
 import LeaderboardPage from './pages/LeaderboardPage';
+import KnockoutsPage from './pages/KnockoutsPage';
 import ClashDetailPage from './pages/ClashDetailPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminDashboard from './pages/AdminDashboard';
@@ -25,6 +26,7 @@ function App() {
             <Route path="clashes" element={<ClashesPage />} />
             <Route path="clashes/:id" element={<ClashDetailPage />} />
             <Route path="leaderboard" element={<LeaderboardPage />} />
+            <Route path="knockouts" element={<KnockoutsPage />} />
             <Route path="admin/login" element={<AdminLoginPage />} />
             <Route path="admin/dashboard" element={<AdminDashboard />} />
             <Route path="admin/teams" element={<AdminTeamsPage />} />
