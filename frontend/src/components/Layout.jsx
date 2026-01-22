@@ -21,6 +21,7 @@ export const Layout = () => {
     { to: '/admin/dashboard', label: 'Dashboard', icon: Trophy },
     { to: '/admin/teams', label: 'Teams', icon: Users },
     { to: '/admin/clashes', label: 'Clashes', icon: Calendar },
+    { to: '/admin/knockouts', label: 'Knockouts', icon: Zap },
   ];
   
   const links = isAdmin ? adminLinks : publicLinks;
