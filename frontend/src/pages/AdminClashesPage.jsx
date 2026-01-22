@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Plus, Edit, Trash2, Bell, Lock, Clock, Trophy, CheckCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, Bell, Lock, Trophy, CheckCircle, Users } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent } from '../components/ui/card';
@@ -108,6 +108,103 @@ export default function AdminClashesPage() {
     return team ? `${team.pool}${team.pool_number}` : '';
   };
   
+  const getPlayerName = (playerId) => {
+    return players.find(p => p.id === playerId)?.name || '';
+  };
+  
+  // Calculate player game count within this clash
+  const getPlayerGameCount = (playerId, excludeGameIdx = -1) => {
+    if (!playerId) return 0;
+    let count = 0;
+    scoreForm.scores.forEach((score, idx) => {
+      if (idx === excludeGameIdx) return;
+      if (score.team1_player1_id === playerId || score.team1_player2_id === playerId ||
+          score.team2_player1_id === playerId || score.team2_player2_id === playerId) {
+        count++;
+      }
+    });
+    return count;
+  };
+  
+  // Get all pairs that have played together in this clash
+  const getUsedPairs = (excludeGameIdx = -1) => {
+    const pairs = new Set();
+    scoreForm.scores.forEach((score, idx) => {
+      if (idx === excludeGameIdx) return;
+      // Team 1 pair
+      if (score.team1_player1_id && score.team1_player2_id) {
+        const pairKey = [score.team1_player1_id, score.team1_player2_id].sort().join('-');
+        pairs.add(pairKey);
+      }
+      // Team 2 pair
+      if (score.team2_player1_id && score.team2_player2_id) {
+        const pairKey = [score.team2_player1_id, score.team2_player2_id].sort().join('-');
+        pairs.add(pairKey);
+      }
+    });
+    return pairs;
+  };
+  
+  // Check if a pair is valid (hasn't played together in this clash)
+  const isPairValid = (player1Id, player2Id, gameIdx) => {
+    if (!player1Id || !player2Id) return true;
+    const pairKey = [player1Id, player2Id].sort().join('-');
+    const usedPairs = getUsedPairs(gameIdx);
+    return !usedPairs.has(pairKey);
+  };
+  
+  // Check if player is eligible (hasn't played 2 games yet)
+  const isPlayerEligible = (playerId, gameIdx) => {
+    if (!playerId) return true;
+    return getPlayerGameCount(playerId, gameIdx) < 2;
+  };
+  
+  // Check if player can be selected for a specific slot
+  const canSelectPlayer = (playerId, gameIdx, teamNum, playerSlot) => {
+    if (!playerId) return true;
+    
+    const score = scoreForm.scores[gameIdx];
+    
+    // Check if already selected in the other slot for same team
+    if (teamNum === 1) {
+      if (playerSlot === 1 && score.team1_player2_id === playerId) return false;
+      if (playerSlot === 2 && score.team1_player1_id === playerId) return false;
+    } else {
+      if (playerSlot === 1 && score.team2_player2_id === playerId) return false;
+      if (playerSlot === 2 && score.team2_player1_id === playerId) return false;
+    }
+    
+    return true;
+  };
+  
+  // Handle player selection with validation
+  const handlePlayerSelect = (gameIdx, field, playerId) => {
+    const score = scoreForm.scores[gameIdx];
+    
+    // Check player eligibility (max 2 games)
+    if (playerId && !isPlayerEligible(playerId, gameIdx)) {
+      toast.error(`${getPlayerName(playerId)} has already played 2 games in this clash!`);
+      return;
+    }
+    
+    // Check pair validity
+    let partnerId = null;
+    if (field === 'team1_player1_id') partnerId = score.team1_player2_id;
+    if (field === 'team1_player2_id') partnerId = score.team1_player1_id;
+    if (field === 'team2_player1_id') partnerId = score.team2_player2_id;
+    if (field === 'team2_player2_id') partnerId = score.team2_player1_id;
+    
+    if (playerId && partnerId && !isPairValid(playerId, partnerId, gameIdx)) {
+      toast.error(`${getPlayerName(playerId)} and ${getPlayerName(partnerId)} have already played together in this clash!`);
+      return;
+    }
+    
+    // Update the score
+    const updated = [...scoreForm.scores];
+    updated[gameIdx][field] = playerId;
+    setScoreForm({ ...scoreForm, scores: updated });
+  };
+  
   // Check if a game is won (21 points, or up to 25 in deuce)
   const getGameWinner = (team1Score, team2Score) => {
     const score1 = parseInt(team1Score) || 0;
@@ -149,12 +246,6 @@ export default function AdminClashesPage() {
     const numValue = parseInt(value) || 0;
     // Cap at 25 for deuce
     updated[matchIdx][field] = Math.min(Math.max(numValue, 0), 25);
-    setScoreForm({ ...scoreForm, scores: updated });
-  };
-  
-  const updateScoreField = (matchIdx, field, value) => {
-    const updated = [...scoreForm.scores];
-    updated[matchIdx][field] = value;
     setScoreForm({ ...scoreForm, scores: updated });
   };
   
@@ -479,7 +570,7 @@ export default function AdminClashesPage() {
         
         {/* Score Entry Dialog */}
         <Dialog open={showScoreDialog} onOpenChange={setShowScoreDialog}>
-          <DialogContent className={`border sm:rounded-2xl max-w-4xl max-h-[90vh] overflow-y-auto ${
+          <DialogContent className={`border sm:rounded-2xl max-w-5xl max-h-[90vh] overflow-y-auto ${
             editingClash && isKnockout(editingClash.stage)
               ? 'bg-gradient-to-br from-red-950/50 to-card border-red-500/30'
               : 'bg-card border-white/10'
@@ -528,7 +619,7 @@ export default function AdminClashesPage() {
                 </div>
                 
                 {/* All 5 Games */}
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <p className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Games (First to 21, deuce to 25)</p>
                   
                   {scoreForm.scores.map((score, idx) => {
@@ -536,6 +627,9 @@ export default function AdminClashesPage() {
                     const isGameComplete = gameWinner !== null;
                     const { team1Wins, team2Wins } = calculateClashScore(scoreForm.scores.slice(0, idx));
                     const clashAlreadyWon = team1Wins >= 3 || team2Wins >= 3;
+                    
+                    const team1Players = getTeamPlayers(editingClash.team1_id);
+                    const team2Players = getTeamPlayers(editingClash.team2_id);
                     
                     return (
                       <div 
@@ -571,8 +665,144 @@ export default function AdminClashesPage() {
                           )}
                         </div>
                         
-                        <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-center">
+                        {/* Player Selection */}
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                          {/* Team 1 Players */}
                           <div className="space-y-2">
+                            <p className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-1">
+                              <Users className="h-3 w-3" /> {getTeamName(editingClash.team1_id)} Players
+                            </p>
+                            <div className="grid grid-cols-2 gap-2">
+                              <Select 
+                                value={score.team1_player1_id || ''} 
+                                onValueChange={(val) => handlePlayerSelect(idx, 'team1_player1_id', val)}
+                                disabled={clashAlreadyWon && !isGameComplete}
+                              >
+                                <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent h-9 text-xs">
+                                  <SelectValue placeholder="Player 1" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-card border border-white/10">
+                                  <SelectItem value="">-- Select --</SelectItem>
+                                  {team1Players.map(player => {
+                                    const gameCount = getPlayerGameCount(player.id, idx);
+                                    const isEligible = gameCount < 2 && canSelectPlayer(player.id, idx, 1, 1);
+                                    return (
+                                      <SelectItem 
+                                        key={player.id} 
+                                        value={player.id}
+                                        disabled={!isEligible}
+                                        className={!isEligible ? 'opacity-50' : ''}
+                                      >
+                                        {player.name} ({gameCount}/2)
+                                      </SelectItem>
+                                    );
+                                  })}
+                                </SelectContent>
+                              </Select>
+                              <Select 
+                                value={score.team1_player2_id || ''} 
+                                onValueChange={(val) => handlePlayerSelect(idx, 'team1_player2_id', val)}
+                                disabled={clashAlreadyWon && !isGameComplete}
+                              >
+                                <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent h-9 text-xs">
+                                  <SelectValue placeholder="Player 2" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-card border border-white/10">
+                                  <SelectItem value="">-- Select --</SelectItem>
+                                  {team1Players.map(player => {
+                                    const gameCount = getPlayerGameCount(player.id, idx);
+                                    const isEligible = gameCount < 2 && canSelectPlayer(player.id, idx, 1, 2);
+                                    const partnerSelected = score.team1_player1_id;
+                                    const pairUsed = partnerSelected && !isPairValid(player.id, partnerSelected, idx);
+                                    return (
+                                      <SelectItem 
+                                        key={player.id} 
+                                        value={player.id}
+                                        disabled={!isEligible || pairUsed}
+                                        className={(!isEligible || pairUsed) ? 'opacity-50' : ''}
+                                      >
+                                        {player.name} ({gameCount}/2) {pairUsed && '⚠️'}
+                                      </SelectItem>
+                                    );
+                                  })}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            {score.team1_player1_id && score.team1_player2_id && !isPairValid(score.team1_player1_id, score.team1_player2_id, idx) && (
+                              <p className="text-xs text-red-400">⚠️ This pair has already played together!</p>
+                            )}
+                          </div>
+                          
+                          {/* Team 2 Players */}
+                          <div className="space-y-2">
+                            <p className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-1">
+                              <Users className="h-3 w-3" /> {getTeamName(editingClash.team2_id)} Players
+                            </p>
+                            <div className="grid grid-cols-2 gap-2">
+                              <Select 
+                                value={score.team2_player1_id || ''} 
+                                onValueChange={(val) => handlePlayerSelect(idx, 'team2_player1_id', val)}
+                                disabled={clashAlreadyWon && !isGameComplete}
+                              >
+                                <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent h-9 text-xs">
+                                  <SelectValue placeholder="Player 1" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-card border border-white/10">
+                                  <SelectItem value="">-- Select --</SelectItem>
+                                  {team2Players.map(player => {
+                                    const gameCount = getPlayerGameCount(player.id, idx);
+                                    const isEligible = gameCount < 2 && canSelectPlayer(player.id, idx, 2, 1);
+                                    return (
+                                      <SelectItem 
+                                        key={player.id} 
+                                        value={player.id}
+                                        disabled={!isEligible}
+                                        className={!isEligible ? 'opacity-50' : ''}
+                                      >
+                                        {player.name} ({gameCount}/2)
+                                      </SelectItem>
+                                    );
+                                  })}
+                                </SelectContent>
+                              </Select>
+                              <Select 
+                                value={score.team2_player2_id || ''} 
+                                onValueChange={(val) => handlePlayerSelect(idx, 'team2_player2_id', val)}
+                                disabled={clashAlreadyWon && !isGameComplete}
+                              >
+                                <SelectTrigger className="rounded-lg bg-secondary/50 border-transparent h-9 text-xs">
+                                  <SelectValue placeholder="Player 2" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-card border border-white/10">
+                                  <SelectItem value="">-- Select --</SelectItem>
+                                  {team2Players.map(player => {
+                                    const gameCount = getPlayerGameCount(player.id, idx);
+                                    const isEligible = gameCount < 2 && canSelectPlayer(player.id, idx, 2, 2);
+                                    const partnerSelected = score.team2_player1_id;
+                                    const pairUsed = partnerSelected && !isPairValid(player.id, partnerSelected, idx);
+                                    return (
+                                      <SelectItem 
+                                        key={player.id} 
+                                        value={player.id}
+                                        disabled={!isEligible || pairUsed}
+                                        className={(!isEligible || pairUsed) ? 'opacity-50' : ''}
+                                      >
+                                        {player.name} ({gameCount}/2) {pairUsed && '⚠️'}
+                                      </SelectItem>
+                                    );
+                                  })}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            {score.team2_player1_id && score.team2_player2_id && !isPairValid(score.team2_player1_id, score.team2_player2_id, idx) && (
+                              <p className="text-xs text-red-400">⚠️ This pair has already played together!</p>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Score Entry */}
+                        <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-center">
+                          <div className="space-y-1">
                             <p className="text-xs font-bold text-muted-foreground uppercase text-center">
                               {getTeamName(editingClash.team1_id)}
                             </p>
@@ -594,7 +824,7 @@ export default function AdminClashesPage() {
                             <span className="text-2xl text-muted-foreground font-bold">vs</span>
                           </div>
                           
-                          <div className="space-y-2">
+                          <div className="space-y-1">
                             <p className="text-xs font-bold text-muted-foreground uppercase text-center">
                               {getTeamName(editingClash.team2_id)}
                             </p>
@@ -619,6 +849,7 @@ export default function AdminClashesPage() {
                 
                 <div className="bg-secondary/30 rounded-lg p-3 text-xs text-muted-foreground">
                   <p><strong>Scoring Rules:</strong> First to 21 wins the game. In case of 20-20 (deuce), play continues until one team leads by 2 points, max 25.</p>
+                  <p className="mt-1"><strong>Player Rules:</strong> Max 2 games per player per clash. No pair can play together more than once per clash.</p>
                   <p className="mt-1"><strong>Clash Win:</strong> First team to win 3 games wins the clash and gets 2 leaderboard points.</p>
                 </div>
                 
