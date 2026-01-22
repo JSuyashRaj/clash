@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, TrendingUp, Medal } from 'lucide-react';
+import { Trophy, TrendingUp, Medal, CheckCircle } from 'lucide-react';
 import { Card, CardContent } from '../components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import axios from 'axios';
@@ -11,6 +11,8 @@ const API = `${BACKEND_URL}/api`;
 export default function LeaderboardPage() {
   const [poolXTeams, setPoolXTeams] = useState([]);
   const [poolYTeams, setPoolYTeams] = useState([]);
+  const [poolXStatus, setPoolXStatus] = useState({ is_complete: false, total_clashes: 0, completed_clashes: 0 });
+  const [poolYStatus, setPoolYStatus] = useState({ is_complete: false, total_clashes: 0, completed_clashes: 0 });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('X');
   
@@ -22,12 +24,16 @@ export default function LeaderboardPage() {
   
   const fetchLeaderboard = async () => {
     try {
-      const [poolXRes, poolYRes] = await Promise.all([
+      const [poolXRes, poolYRes, poolXStatusRes, poolYStatusRes] = await Promise.all([
         axios.get(`${API}/leaderboard?pool=X`),
-        axios.get(`${API}/leaderboard?pool=Y`)
+        axios.get(`${API}/leaderboard?pool=Y`),
+        axios.get(`${API}/pool-status/X`),
+        axios.get(`${API}/pool-status/Y`)
       ]);
       setPoolXTeams(poolXRes.data);
       setPoolYTeams(poolYRes.data);
+      setPoolXStatus(poolXStatusRes.data);
+      setPoolYStatus(poolYStatusRes.data);
     } catch (error) {
       console.error('Error fetching leaderboard:', error);
     } finally {
@@ -45,7 +51,7 @@ export default function LeaderboardPage() {
     return medals[position] || { icon: TrendingUp, color: 'text-muted-foreground', bg: 'bg-secondary' };
   };
   
-  const renderTeams = (teams) => {
+  const renderTeams = (teams, poolStatus) => {
     if (teams.length === 0) {
       return (
         <div className="text-center py-12">
@@ -60,7 +66,10 @@ export default function LeaderboardPage() {
         {teams.map((team, idx) => {
           const medal = getMedalIcon(idx);
           const Icon = medal.icon;
-          const isQualified = idx < 4;
+          // Only show qualified if pool is complete AND team is in top 2
+          const isQualified = poolStatus.is_complete && idx < 2;
+          // Highlight top 2 positions
+          const isTopTwo = idx < 2;
           
           return (
             <motion.div
@@ -73,8 +82,10 @@ export default function LeaderboardPage() {
             >
               <Card className={`rounded-xl border backdrop-blur-sm transition-all duration-300 ${
                 isQualified
-                  ? 'border-primary/30 bg-gradient-to-r from-card/80 to-card/50 hover:border-primary/50'
-                  : 'border-white/10 bg-card/50 hover:border-primary/30'
+                  ? 'border-green-500/50 bg-gradient-to-r from-green-950/30 to-card/50 hover:border-green-500/70'
+                  : isTopTwo
+                    ? 'border-primary/30 bg-gradient-to-r from-card/80 to-card/50 hover:border-primary/50'
+                    : 'border-white/10 bg-card/50 hover:border-primary/30'
               }`}>
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center gap-4">
@@ -92,8 +103,8 @@ export default function LeaderboardPage() {
                           {team.pool}{team.pool_number}
                         </span>
                         {isQualified && (
-                          <span className="px-2 py-1 bg-green-500/20 border border-green-500/50 rounded text-xs font-bold text-green-500 uppercase">
-                            Qualified
+                          <span className="px-2 py-1 bg-green-500/20 border border-green-500/50 rounded text-xs font-bold text-green-500 uppercase flex items-center gap-1">
+                            <CheckCircle className="h-3 w-3" /> Qualified
                           </span>
                         )}
                       </div>
@@ -149,6 +160,38 @@ export default function LeaderboardPage() {
     );
   };
   
+  const renderPoolStatus = (poolStatus, poolName) => {
+    if (poolStatus.total_clashes === 0) {
+      return (
+        <div className="mt-6 p-4 bg-secondary/30 border border-border rounded-lg">
+          <p className="text-xs font-bold text-muted-foreground">No clashes scheduled yet</p>
+        </div>
+      );
+    }
+    
+    if (poolStatus.is_complete) {
+      return (
+        <div className="mt-6 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+          <p className="text-xs font-bold text-green-500 flex items-center gap-2">
+            <CheckCircle className="h-4 w-4" />
+            Pool {poolName} complete! Top 2 teams qualified for knockouts.
+          </p>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="mt-6 p-4 bg-primary/10 border border-primary/30 rounded-lg">
+        <p className="text-xs font-bold text-primary">
+          Pool {poolName}: {poolStatus.completed_clashes}/{poolStatus.total_clashes} clashes completed
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Top 2 teams will qualify for knockouts after all matches are completed
+        </p>
+      </div>
+    );
+  };
+  
   return (
     <div className="bg-background min-h-screen">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -161,7 +204,7 @@ export default function LeaderboardPage() {
             <span className="text-primary">Leaderboard</span>
           </h1>
           <p className="text-lg text-muted-foreground font-medium mb-8">
-            Rankings: Points → Matches Lost → Point Difference
+            Rankings: Points → Fewer Losses → Point Difference
           </p>
         </motion.div>
         
@@ -177,17 +220,13 @@ export default function LeaderboardPage() {
             </TabsList>
             
             <TabsContent value="X">
-              {renderTeams(poolXTeams)}
-              <div className="mt-6 p-4 bg-primary/10 border border-primary/30 rounded-lg">
-                <p className="text-xs font-bold text-primary">Top 4 teams qualify for knockouts</p>
-              </div>
+              {renderTeams(poolXTeams, poolXStatus)}
+              {renderPoolStatus(poolXStatus, 'X')}
             </TabsContent>
             
             <TabsContent value="Y">
-              {renderTeams(poolYTeams)}
-              <div className="mt-6 p-4 bg-primary/10 border border-primary/30 rounded-lg">
-                <p className="text-xs font-bold text-primary">Top 4 teams qualify for knockouts</p>
-              </div>
+              {renderTeams(poolYTeams, poolYStatus)}
+              {renderPoolStatus(poolYStatus, 'Y')}
             </TabsContent>
           </Tabs>
         )}
