@@ -631,6 +631,10 @@ export default function AdminClashesPage() {
                     const team1Players = getTeamPlayers(editingClash.team1_id);
                     const team2Players = getTeamPlayers(editingClash.team2_id);
                     
+                    // Check if all 4 players are selected for this game
+                    const allPlayersSelected = score.team1_player1_id && score.team1_player2_id && 
+                                               score.team2_player1_id && score.team2_player2_id;
+                    
                     return (
                       <div 
                         key={idx} 
