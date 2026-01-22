@@ -77,7 +77,7 @@ export default function AdminLoginPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400"
+                className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-primary/80"
                 style={{ boxShadow: '0 0 20px -5px rgba(204, 255, 0, 0.5)' }}
                 data-testid="admin-login-submit"
               >

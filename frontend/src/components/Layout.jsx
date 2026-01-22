@@ -54,7 +54,7 @@ export const Layout = () => {
                     <Button
                       variant={isActive ? 'default' : 'ghost'}
                       className={`font-bold uppercase tracking-wider ${
-                        isActive ? 'bg-primary text-black hover:bg-yellow-400' : 'text-muted-foreground hover:text-foreground'
+                        isActive ? 'bg-primary text-black hover:bg-primary/80' : 'text-muted-foreground hover:text-foreground'
                       }`}
                     >
                       <Icon className="h-4 w-4 mr-2" />

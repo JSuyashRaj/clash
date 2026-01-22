@@ -402,7 +402,7 @@ export default function AdminClashesPage() {
                         data-testid="notif-message-input"
                       />
                     </div>
-                    <Button type="submit" className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400" data-testid="notif-submit-btn">
+                    <Button type="submit" className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-primary/80" data-testid="notif-submit-btn">
                       Send Notification
                     </Button>
                   </form>
@@ -411,7 +411,7 @@ export default function AdminClashesPage() {
               
               <Dialog open={showClashDialog} onOpenChange={setShowClashDialog}>
                 <DialogTrigger asChild>
-                  <Button className="font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400" style={{ boxShadow: '0 0 20px -5px rgba(204, 255, 0, 0.5)' }} data-testid="add-clash-btn">
+                  <Button className="font-bold uppercase tracking-wider bg-primary text-black hover:bg-primary/80" style={{ boxShadow: '0 0 20px -5px rgba(204, 255, 0, 0.5)' }} data-testid="add-clash-btn">
                     <Plus className="mr-2 h-4 w-4" /> Add Clash
                   </Button>
                 </DialogTrigger>
@@ -474,7 +474,7 @@ export default function AdminClashesPage() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <Button type="submit" className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400" data-testid="clash-submit-btn">
+                    <Button type="submit" className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-primary/80" data-testid="clash-submit-btn">
                       Create Clash
                     </Button>
                   </form>
@@ -866,7 +866,7 @@ export default function AdminClashesPage() {
                 
                 <Button 
                   type="submit" 
-                  className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400" 
+                  className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-primary/80" 
                   data-testid="score-submit-btn"
                 >
                   {isClashFinished(scoreForm.scores) ? 'Save & Complete Clash' : 'Save Scores'}

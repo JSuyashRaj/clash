@@ -247,7 +247,7 @@ export default function AdminTeamsPage() {
                     <Button
                       onClick={handleGenerateFixtures}
                       disabled={generatingFixtures || teams.length < 14}
-                      className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400"
+                      className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-primary/80"
                       data-testid="confirm-generate-fixtures"
                     >
                       {generatingFixtures ? 'Generating...' : 'Generate All Fixtures'}
@@ -262,7 +262,7 @@ export default function AdminTeamsPage() {
               <Dialog open={showTeamDialog} onOpenChange={setShowTeamDialog}>
                 <DialogTrigger asChild>
                   <Button
-                    className="font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400"
+                    className="font-bold uppercase tracking-wider bg-primary text-black hover:bg-primary/80"
                     style={{ boxShadow: '0 0 20px -5px rgba(204, 255, 0, 0.5)' }}
                     onClick={() => {
                       setEditingTeam(null);
@@ -329,7 +329,7 @@ export default function AdminTeamsPage() {
                     </div>
                     <Button
                       type="submit"
-                      className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400"
+                      className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-primary/80"
                       data-testid="team-submit-btn"
                     >
                       {editingTeam ? 'Update Team' : 'Create Team'}
@@ -501,7 +501,7 @@ export default function AdminTeamsPage() {
               )}
               <Button
                 type="submit"
-                className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-yellow-400"
+                className="w-full font-bold uppercase tracking-wider bg-primary text-black hover:bg-primary/80"
                 data-testid="player-submit-btn"
               >
                 {editingPlayer ? 'Update Player' : 'Add Player'}
